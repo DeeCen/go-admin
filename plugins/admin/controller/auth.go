@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"strings"
 	template2 "html/template"
 	"net/http"
 	"net/url"
@@ -68,7 +69,8 @@ func (h *Handler) Auth(ctx *context.Context) {
 	if ref := ctx.Referer(); ref != "" {
 		if u, err := url.Parse(ref); err == nil {
 			v := u.Query()
-			if r := v.Get("ref"); r != "" {
+			if r := v.Get("ref"); r != "" &&
+				strings.Index(r,`http`)==0 {
 				rr, _ := url.QueryUnescape(r)
 				response.OkWithData(ctx, map[string]interface{}{
 					"url": rr,

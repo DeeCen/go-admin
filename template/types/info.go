@@ -255,10 +255,19 @@ func (f Field) GetFilterFormFields(params parameter.Parameters, headField string
 			Label:       filter.Operator.Label(),
 		}
 
+		// 如果是like, 加入可模糊搜索描述
+		if filter.Operator==FilterOperatorLike &&
+			strings.Contains(filter.Placeholder,`支持模糊搜索`)==false{
+			filter.Placeholder += `, 支持模糊搜索`
+		}
+
 		field.setOptionsFromSQL(sql[0])
 
 		if filter.Type.IsSingleSelect() {
 			field.Options = field.Options.SetSelected(params.GetFieldValue(f.Field), filter.Type.SelectedLabel())
+
+			// fixed 列表的单选框没有选中值的问题
+			field.Default = template.HTML(params.GetFieldValue(f.Field))
 		}
 
 		if filter.Type.IsMultiSelect() {
@@ -1305,7 +1314,14 @@ func (i *InfoPanel) FieldFilterable(filterType ...FilterType) *InfoPanel {
 		ff.NoIcon = filter.NoIcon
 		ff.Style = filter.Style
 		ff.ProcessFn = filter.Process
-		ff.Placeholder = modules.AorB(filter.Placeholder == "", language.Get("input")+" "+ff.Head, filter.Placeholder)
+
+		// 加入可模糊搜索提示
+		canLikeDesc := ``
+		if ff.Operator==FilterOperatorLike{
+			canLikeDesc = `, `+language.Get("can like")
+		}
+
+		ff.Placeholder = modules.AorB(filter.Placeholder == "", language.Get("input")+" "+ff.Head+canLikeDesc, filter.Placeholder)
 		ff.Options = filter.Options
 		if len(filter.OptionExt) > 0 {
 			s, _ := json.Marshal(filter.OptionExt)

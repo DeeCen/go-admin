@@ -160,17 +160,18 @@ func Filter(ctx *context.Context, conn db.Connection) (models.UserModel, bool, b
 	)
 
 	if err != nil {
-		logger.Error("retrieve auth user failed", err)
+		logger.Error("Filter retrieve auth user failed", err)
 		return user, false, false
 	}
 
 	if id, ok = ses.Get("user_id").(float64); !ok {
+		logger.Warn("Filter auth user user_id failed")
 		return user, false, false
 	}
 
 	user, ok = GetCurUserByID(int64(id), conn)
-
 	if !ok {
+		logger.Warn("Filter auth user GetCurUserByID failed id=", id)
 		return user, false, false
 	}
 
@@ -227,6 +228,9 @@ func GetCurUserByID(id int64, conn db.Connection) (user models.UserModel, ok boo
 	user = user.WithRoles().WithPermissions().WithMenus()
 
 	ok = user.HasMenu()
+	if ok==false {
+		logger.Error("HasMenu false user.id=", user.Id)
+	}
 
 	return
 }

@@ -323,10 +323,16 @@ func (tb *DefaultTable) getTempModelData(res map[string]interface{}, params para
 				Content: template.HTML(valueStr),
 				Value:   combineValue,
 			}
-		} else {
-			valueStr = string(value.(template.HTML))
+		} else if valueTpl,ok := value.(template.HTML);ok {
+			valueStr = string(valueTpl)
 			tempModelData[headField] = types.InfoItem{
-				Content: value.(template.HTML),
+				Content: valueTpl,
+				Value:   combineValue,
+			}
+		} else {
+			valueStr = fmt.Sprintf(`%v`, value)
+			tempModelData[headField] = types.InfoItem{
+				Content: template.HTML(valueStr),
 				Value:   combineValue,
 			}
 		}
@@ -486,7 +492,12 @@ func (tb *DefaultTable) getDataFromDatabase(params parameter.Parameters) (PanelI
 
 	fields += pk
 
-	allFields := fields
+	// allFields := fields
+    
+    // 2022-07-04 fixed:一个表格显示多字段为空的问题
+    // 改为直接查询原表所有字段即可
+    allFields := tb.Info.Table + `.*`
+    
 	groupFields := fields
 
 	if joinFields != "" {

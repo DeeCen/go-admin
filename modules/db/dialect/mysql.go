@@ -13,7 +13,8 @@ func (mysql) GetName() string {
 }
 
 func (mysql) ShowColumns(table string) string {
-	return "show columns in " + table
+	//return "show columns in " + table
+	return "SHOW FULL COLUMNS IN " + table
 }
 
 func (mysql) ShowTables() string {

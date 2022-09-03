@@ -892,6 +892,15 @@ func (f *FormPanel) FieldNowWhenInsert() *FormPanel {
 
 func (f *FormPanel) FieldLimit(limit int) *FormPanel {
 	f.FieldList[f.curFieldListIndex].DisplayProcessChains = f.FieldList[f.curFieldListIndex].AddLimit(limit)
+
+	// 既然限制了长度,默认加入js限制前端长度
+	f.AddJS(template.JS(fmt.Sprintf(`$(".%s").attr("maxlength",%d);`,
+		f.FieldList[f.curFieldListIndex].Field,
+		limit)))
+
+	// 描述也加入最大长度
+	f.FieldList[f.curFieldListIndex].Placeholder += fmt.Sprintf(`, 最大支持%d个字`, limit)
+
 	return f
 }
 

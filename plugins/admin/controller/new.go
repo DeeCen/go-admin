@@ -115,7 +115,7 @@ func (h *Handler) NewForm(ctx *context.Context) {
 
 	err := param.Panel.InsertData(param.Value())
 	if err != nil {
-		logger.Error("insert data error: ", err)
+		logger.Error("insert data error: ", err, param.Value())
 		if ctx.WantJSON() {
 			response.Error(ctx, err.Error(), map[string]interface{}{
 				"token": h.authSrv().AddToken(),

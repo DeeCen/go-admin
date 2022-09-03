@@ -503,5 +503,6 @@ func (t UserModel) MapToModel(m map[string]interface{}) UserModel {
 	t.RememberToken, _ = m["remember_token"].(string)
 	t.CreatedAt, _ = m["created_at"].(string)
 	t.UpdatedAt, _ = m["updated_at"].(string)
+
 	return t
 }

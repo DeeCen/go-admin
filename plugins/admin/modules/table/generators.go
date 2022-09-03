@@ -525,6 +525,9 @@ func (s *SystemTable) GetPermissionTable(ctx *context.Context) (permissionTable 
 
 	info := permissionTable.GetInfo().AddXssJsFilter().HideFilterArea()
 
+	// 统一折叠菜单
+	info.SetActionButtonFold();
+
 	info.AddField("ID", "id", db.Int).FieldSortable()
 	info.AddField(lg("permission"), "name", db.Varchar).FieldFilterable()
 	info.AddField(lg("slug"), "slug", db.Varchar).FieldFilterable()
@@ -1001,7 +1004,9 @@ func (s *SystemTable) GetMenuTable(ctx *context.Context) (menuTable Table) {
 			}
 
 			menuModel, _ := s.table("goadmin_menu").Select("parent_id").Find(model.ID)
-			menuItem = append(menuItem, strconv.FormatInt(menuModel["parent_id"].(int64), 10))
+			parentId := strconv.FormatInt(menuModel["parent_id"].(int64), 10)
+			menuItem = append(menuItem, parentId)
+
 			return menuItem
 		})
 	formList.AddField(lg("menu name"), "title", db.Varchar, form.Text).FieldMust()
@@ -1009,7 +1014,9 @@ func (s *SystemTable) GetMenuTable(ctx *context.Context) (menuTable Table) {
 	formList.AddField(lg("icon"), "icon", db.Varchar, form.IconPicker)
 	formList.AddField(lg("uri"), "uri", db.Varchar, form.Text)
 	formList.AddField("PluginName", "plugin_name", db.Varchar, form.Text).FieldDefault(name).FieldHide()
-	formList.AddField(lg("role"), "roles", db.Int, form.Select).
+
+	// 暂时移除角色功能
+	/*formList.AddField(lg("role"), "roles", db.Int, form.Select).
 		FieldOptionsFromTable("goadmin_roles", "slug", "id").
 		FieldDisplay(func(model types.FieldModel) interface{} {
 			var roles []string
@@ -1027,14 +1034,18 @@ func (s *SystemTable) GetMenuTable(ctx *context.Context) (menuTable Table) {
 				roles = append(roles, strconv.FormatInt(v["role_id"].(int64), 10))
 			}
 			return roles
-		})
+		})*/
 
 	formList.AddField(lg("updatedAt"), "updated_at", db.Timestamp, form.Default).FieldDisableWhenCreate()
-	formList.AddField(lg("createdAt"), "created_at", db.Timestamp, form.Default).FieldDisableWhenCreate()
+	//formList.AddField(lg("createdAt"), "created_at", db.Timestamp, form.Default).FieldDisableWhenCreate()
 
 	formList.SetTable("goadmin_menu").
 		SetTitle(lg("Menus Manage")).
 		SetDescription(lg("Menus Manage"))
+
+	formList.HideContinueEditCheckBox()
+	formList.HideContinueNewCheckBox()
+	formList.HideResetButton()
 
 	return
 }
@@ -1436,7 +1447,13 @@ func (s *SystemTable) GetGenerateForm(ctx *context.Context) (generateTool Table)
 				for i, model := range columnsModel {
 					typeName := getType(model[typeField].(string))
 
-					headName[i] = strings.Title(model[fieldField].(string))
+					// 默认使用注释
+					if comment,ok := model[`Comment`]; ok && comment!=`` {
+						headName[i] = comment.(string)
+					} else {
+						headName[i] = strings.Title(model[fieldField].(string))
+					}
+
 					fieldName[i] = model[fieldField].(string)
 					dbTypeList[i] = typeName
 					formTypeList[i] = form.GetFormTypeFromFieldType(db.DT(strings.ToUpper(typeName)),

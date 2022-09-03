@@ -132,27 +132,28 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
 		allActionBtns = info.ActionButtons.CheckPermissionWhenURLAndMethodNotEmpty(user)
 	)
 
-	if actionBtns == template.HTML("") && len(allActionBtns) > 0 {
+	//if actionBtns == template.HTML("") && len(allActionBtns) > 0 {
+	if true {
 		if info.ActionButtonFold {
 			ext := template2.HTML("")
 			if deleteUrl != "" {
-				ext = html.LiEl().SetClass("divider").Get()
+				//ext = html.LiEl().SetClass("divider").Get()
 				allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("delete"),
 					types.NewDefaultAction(`data-id='{{.Id}}' data-param='{{(index .Value "__goadmin_delete_params").Content}}' style="cursor: pointer;"`,
 						ext, "", ""), "grid-row-delete")}, allActionBtns...)
 			}
 			ext = template2.HTML("")
 			if detailUrl != "" {
-				if editUrl == "" && deleteUrl == "" {
+				/*if editUrl == "" && deleteUrl == "" {
 					ext = html.LiEl().SetClass("divider").Get()
-				}
+				}*/
 				allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("detail"),
 					action.Jump(detailUrl+"&"+constant.DetailPKKey+`={{.Id}}{{(index .Value "__goadmin_detail_params").Content}}`, ext))}, allActionBtns...)
 			}
 			if editUrl != "" {
-				if detailUrl == "" && deleteUrl == "" {
+				/*if detailUrl == "" && deleteUrl == "" {
 					ext = html.LiEl().SetClass("divider").Get()
-				}
+				}*/
 				allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("edit"),
 					action.Jump(editUrl+"&"+constant.EditPKKey+`={{.Id}}{{(index .Value "__goadmin_edit_params").Content}}`, ext))}, allActionBtns...)
 			}

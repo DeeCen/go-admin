@@ -146,13 +146,16 @@ func (f FieldDisplay) ToDisplayStringArrayArray(value FieldModel) [][]string {
 
 func (f FieldDisplay) AddLimit(limit int) DisplayProcessFnChains {
 	return f.DisplayProcessChains.Add(func(value FieldModel) interface{} {
-		if limit > len(value.Value) {
-			return value.Value
-		} else if limit < 0 {
-			return ""
-		} else {
-			return value.Value[:limit]
+		if limit <= 0 {
+			return ``
 		}
+
+		// 改为支持中文的切割方式
+		runeArr := []rune(value.Value)
+		if limit >= len(runeArr) {
+			return value.Value
+		}
+		return string(runeArr[:limit])
 	})
 }
 

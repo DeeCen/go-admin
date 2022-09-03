@@ -11,11 +11,13 @@ var cn = LangSet{
 	"name":      "用户名",
 	"nickname":  "昵称",
 	"role":      "角色",
+	"header":    "头部",
 	"createdat": "创建时间",
 	"updatedat": "更新时间",
 	"path":      "路径",
 	"submit":    "提交",
 	"filter":    "筛选",
+	"can like":  "支持模糊搜索",
 
 	"new":             "新建",
 	"export":          "导出",

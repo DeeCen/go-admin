@@ -132,7 +132,8 @@ func (h *Handler) showEditMenu(ctx *context.Context, plugName string, formInfo t
 			SetPrefix(h.config.PrefixFixSlash()).
 			SetPrimaryKey(panel.GetPrimaryKey().Name).
 			SetUrl(h.routePath("menu_edit")).
-			SetOperationFooter(formFooter("edit", false, false, false,
+			//SetOperationFooter(formFooter("edit", false, false, false,
+			SetOperationFooter(formFooter("edit", true, true, true,
 				panel.GetForm().FormEditBtnWord)).
 			SetHiddenFields(map[string]string{
 				form2.TokenKey:    h.authSrv().AddToken(),

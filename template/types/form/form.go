@@ -408,7 +408,7 @@ func (t Type) GetDefaultOptions(field string) (map[string]interface{}, map[strin
 			"prettify": false,
 			"hasGrid":  true,
 			"max":      100,
-			"min":      1,
+			"min":      0,
 			"step":     1,
 			"postfix":  "",
 		}, nil, ""
