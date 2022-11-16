@@ -177,7 +177,11 @@ func (h *Handler) EditForm(ctx *context.Context) {
 				"token": h.authSrv().AddToken(),
 			})
 		} else {
-			h.showForm(ctx, aAlert().Warning(err.Error()), param.Prefix, param.Param, true)
+			/*
+			*	前端提交表单后,报错会导致所有表单数据清空,这里返回404,不再刷新清空原表单数据
+			*/
+			ctx.Write(404,nil,`pjaxError:`+err.Error())
+			//h.showForm(ctx, aAlert().Warning(err.Error()), param.Prefix, param.Param, true)
 		}
 		return
 	}

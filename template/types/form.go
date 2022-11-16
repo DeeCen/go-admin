@@ -894,7 +894,8 @@ func (f *FormPanel) FieldLimit(limit int) *FormPanel {
 	f.FieldList[f.curFieldListIndex].DisplayProcessChains = f.FieldList[f.curFieldListIndex].AddLimit(limit)
 
 	// 既然限制了长度,默认加入js限制前端长度
-	f.AddJS(template.JS(fmt.Sprintf(`$(".%s").attr("maxlength",%d);`,
+	f.AddJS(template.JS(fmt.Sprintf(`$(".%s,textarea[name='%s']").attr("maxlength",%d);`,
+		f.FieldList[f.curFieldListIndex].Field,
 		f.FieldList[f.curFieldListIndex].Field,
 		limit)))
 
@@ -1370,7 +1371,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
 	if f.AjaxSuccessJS == template.JS("") {
 		successMsg := modules.AorB(data.SuccessTitle != "", `"`+data.SuccessTitle+`"`, "data.msg")
 		errorMsg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "data.msg")
-		jump := modules.AorB(data.SuccessJumpURL != "", `"`+data.SuccessJumpURL+`"`, "data.data.url")
+		jump := modules.AorB(data.SuccessJumpURL != "", `"`+data.SuccessJumpURL+`"`, "typeof data.data=='undefined' ? '' : data.data.url")
 		text := modules.AorB(data.SuccessText != "", `text:"`+data.SuccessText+`",`, "")
 		wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "text:data.msg,")
 		jumpURL := ""
@@ -1378,10 +1379,15 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
 			if data.JumpInNewTab != "" {
 				jumpURL = `listenerForAddNavTab(` + jump + `, "` + data.JumpInNewTab + `");`
 			}
-			jumpURL += `$.pjax({url: ` + jump + `, container: '#pjax-container'});`
+			jumpURL += `var toURL = `+jump+`;
+						if (toURL) { 
+							$.pjax({url: toURL, container: '#pjax-container'}); 
+						} else { 
+							window.location.reload(); 
+						}`
 		} else {
 			jumpURL = `
-		if (data.data && data.data.token !== "") {
+		if (typeof data.data!='undefined' && typeof data.data.token!='undefined' && data.data.token !== "") {
 			$("input[name='__go_admin_t_']").val(data.data.token)
 		}`
 		}
@@ -1389,7 +1395,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
 	if (typeof (data) === "string") {
 	    data = JSON.parse(data);
 	}
-	if (data.code === 200) {
+	if (data.code===200 || data.code===0) {
 	    swal({
 			type: "success",
 			title: ` + successMsg + `,
@@ -1398,12 +1404,14 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
 			confirmButtonColor: "#3c8dbc",
 			confirmButtonText: '` + language.Get("got it") + `',
         }, function() {
+			swal.close();
 			$(".modal-backdrop.fade.in").remove();
+			$('button.close[data-dismiss="modal"]').click();
 			` + jumpURL + `
 			` + data.SuccessJS + `
         });
 	} else {
-		if (data.data && data.data.token !== "") {
+		if (typeof data.data!='undefined' && typeof data.data.token!='undefined' && data.data.token !== "") {
 			$("input[name='__go_admin_t_']").val(data.data.token);
 		}
 		swal({

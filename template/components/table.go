@@ -71,7 +71,7 @@ func (compo *TableAttribute) SetLayout(value string) types.TableAttribute {
 
 func (compo *TableAttribute) GetContent() template.HTML {
 	if compo.MinWidth == "" {
-		compo.MinWidth = "1000px"
+		compo.MinWidth = "100%"
 	}
 	return ComposeHtml(compo.TemplateList, compo.Separation, *compo, "table")
 }
@@ -221,7 +221,7 @@ func (compo *DataTableAttribute) SetNoAction() types.DataTableAttribute {
 
 func (compo *DataTableAttribute) GetContent() template.HTML {
 	if compo.MinWidth == "" {
-		compo.MinWidth = "1000px"
+		compo.MinWidth = "100%"
 	}
 	if !compo.NoAction && compo.EditUrl == "" && compo.DeleteUrl == "" && compo.DetailUrl == "" && compo.Action == "" {
 		compo.NoAction = true

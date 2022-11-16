@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/GoAdminGroup/go-admin/context"
-	"github.com/GoAdminGroup/go-admin/modules/auth"
+	//"github.com/GoAdminGroup/go-admin/modules/auth"
 	"github.com/GoAdminGroup/go-admin/modules/config"
-	"github.com/GoAdminGroup/go-admin/modules/db"
+	//"github.com/GoAdminGroup/go-admin/modules/db"
 	"github.com/GoAdminGroup/go-admin/modules/errors"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/form"
@@ -86,15 +86,22 @@ func (g *Guard) NewForm(ctx *context.Context) {
 	var (
 		previous      = ctx.FormValue(form.PreviousKey)
 		panel, prefix = g.table(ctx)
-		conn          = db.GetConnection(g.services)
-		token         = ctx.FormValue(form.TokenKey)
+		//conn          = db.GetConnection(g.services)
+		//token         = ctx.FormValue(form.TokenKey)
 	)
 
-	if !auth.GetTokenService(g.services.Get(auth.TokenServiceKey)).CheckToken(token) {
+    /**
+		修改系统可以保留表单数据
+		1 表单验证器报错后,返回404
+		2 pjax页面不再刷新
+		3 继续使用旧token提交数据
+	    4 干脆移除token功能了
+	*/
+	/*if !auth.GetTokenService(g.services.Get(auth.TokenServiceKey)).CheckToken(token) {
 		alert(ctx, panel, errors.CreateFailWrongToken, conn, g.navBtns)
 		ctx.Abort()
 		return
-	}
+	}*/
 
 	fromList := isInfoUrl(previous)
 	param := parameter.GetParamFromURL(previous, panel.GetInfo().DefaultPageSize,

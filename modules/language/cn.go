@@ -134,7 +134,7 @@ var cn = LangSet{
 	"initialize navigation buttons":   "初始化导航栏按钮",
 	"initialize plugins":              "初始化插件",
 	"initialize database connections": "初始化数据库连接",
-	"initialize success":              "初始化成功🍺🍺",
+	"initialize success":              "初始化成功",
 
 	"plugins":          "插件",
 	"plugin store":     "插件商店",

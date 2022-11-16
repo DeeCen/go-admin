@@ -494,14 +494,15 @@ func (tb *DefaultTable) getDataFromDatabase(params parameter.Parameters) (PanelI
 
 	// allFields := fields
     
-    // 2022-07-04 fixed:一个表格显示多字段为空的问题
+    // 2022-07-04 fixed:一个td表格内显示多字段为空的问题
     // 改为直接查询原表所有字段即可
     allFields := tb.Info.Table + `.*`
     
 	groupFields := fields
 
+	// 2022-11-01 fixed: join不查询字段时,系统强制查询对应的Fields引发了bug,直接注释即可
 	if joinFields != "" {
-		allFields += "," + joinFields[:len(joinFields)-1]
+		/*allFields += "," + joinFields[:len(joinFields)-1]
 		if connection.Name() == db.DriverMssql {
 			for _, field := range tb.Info.FieldList {
 				if field.TypeName == db.Text || field.TypeName == db.Longtext {
@@ -511,7 +512,7 @@ func (tb *DefaultTable) getDataFromDatabase(params parameter.Parameters) (PanelI
 					groupFields = strings.ReplaceAll(groupFields, headField, "CAST("+headField+" AS NVARCHAR(MAX))")
 				}
 			}
-		}
+		}*/
 	}
 
 	if !modules.InArray(columns, params.SortField) {
@@ -597,7 +598,7 @@ func (tb *DefaultTable) getDataFromDatabase(params parameter.Parameters) (PanelI
 			return PanelInfo{}, err
 		}
 
-		logger.LogSQL(countCmd, nil)
+		logger.LogSQL(countCmd, whereArgs)
 
 		if tb.connectionDriver == "postgresql" {
 			if tb.connectionDriverMode == "h2" {

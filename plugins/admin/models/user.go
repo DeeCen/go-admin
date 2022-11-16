@@ -7,13 +7,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 
 	"github.com/GoAdminGroup/go-admin/modules/config"
 	"github.com/GoAdminGroup/go-admin/modules/db"
 	"github.com/GoAdminGroup/go-admin/modules/db/dialect"
-	"github.com/GoAdminGroup/go-admin/modules/logger"
-	"github.com/GoAdminGroup/go-admin/modules/utils"
-	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
+	//"github.com/GoAdminGroup/go-admin/modules/logger"
+	//"github.com/GoAdminGroup/go-admin/modules/utils"
+	//"github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
 )
 
 // UserModel is user model structure.
@@ -83,10 +84,13 @@ func (t UserModel) HasMenu() bool {
 
 // IsSuperAdmin check the user model is super admin or not.
 func (t UserModel) IsSuperAdmin() bool {
-	for _, per := range t.Permissions {
+	/*for _, per := range t.Permissions {
 		if len(per.HttpPath) > 0 && per.HttpPath[0] == "*" && per.HttpMethod[0] == "" {
 			return true
 		}
+	}*/
+	if t.Id==1 {
+		return true
 	}
 	return false
 }
@@ -116,7 +120,7 @@ func (t UserModel) Template(str string) string {
 
 func (t UserModel) CheckPermissionByUrlMethod(path, method string, formParams url.Values) bool {
 
-	// path, _ = url.PathUnescape(path)
+	path, _ = url.PathUnescape(path)
 
 	if t.IsSuperAdmin() {
 		return true
@@ -127,17 +131,30 @@ func (t UserModel) CheckPermissionByUrlMethod(path, method string, formParams ur
 	}
 
 	logoutCheck, _ := regexp.Compile(config.Url("/logout") + "(.*?)")
-
 	if logoutCheck.MatchString(path) {
 		return true
 	}
 
+	// 当前改为判断是否有菜单即可
 	if path != "/" && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
 
-	path = utils.ReplaceAll(path, constant.EditPKKey, "id", constant.DetailPKKey, "id")
+	id := getMenuId(t.Conn, path)
+	if id==0 {
+		return true
+	}
 
+	for _,v := range t.MenuIds{
+		if v==id{
+			return true
+		}
+	}
+
+	return false
+
+	/*
+	path = utils.ReplaceAll(path, constant.EditPKKey, "id", constant.DetailPKKey, "id")
 	path, params := getParam(path)
 	for key, value := range formParams {
 		if len(value) > 0 {
@@ -146,7 +163,6 @@ func (t UserModel) CheckPermissionByUrlMethod(path, method string, formParams ur
 	}
 
 	for _, v := range t.Permissions {
-
 		if v.HttpMethod[0] == "" || inMethodArr(v.HttpMethod, method) {
 
 			if v.HttpPath[0] == "*" {
@@ -181,6 +197,30 @@ func (t UserModel) CheckPermissionByUrlMethod(path, method string, formParams ur
 	}
 
 	return false
+	*/
+}
+
+// getMenuId 获取菜单id,不存在时返回0
+func getMenuId(db db.Connection, uri string)(ret int64){
+	prefix := config.Url(``)
+	uri,_,_= strings.Cut(uri,`?`)
+	uri = strings.TrimLeft(uri, prefix)
+	uri = strings.TrimLeft(uri,`/`)
+	uri = `/` + uri
+
+	if uri==`` || uri==`/`{
+		return
+	}
+
+	menuInfo ,err := db.Query(`SELECT id FROM goadmin_menu WHERE uri=? LIMIT 1`, uri)
+	if err==nil && len(menuInfo)>0{
+		id,_ := strconv.Atoi(fmt.Sprintf(`%d`,menuInfo[0][`id`]));
+		ret = int64(id)
+	}
+
+	//fmt.Println(`------------getMenuId---------------`,uri,ret)
+
+	return
 }
 
 func getParam(u string) (string, url.Values) {
@@ -275,8 +315,9 @@ func (t UserModel) GetAllRoleId() []interface{} {
 
 // WithPermissions query the permission info of the user.
 func (t UserModel) WithPermissions() UserModel {
+	// 当前更改了用户权限
+	/*var permissions = make([]map[string]interface{}, 0)
 
-	var permissions = make([]map[string]interface{}, 0)
 
 	roleIds := t.GetAllRoleId()
 
@@ -289,6 +330,7 @@ func (t UserModel) WithPermissions() UserModel {
 				"goadmin_permissions.created_at", "goadmin_permissions.updated_at").
 			All()
 	}
+
 
 	userPermissions, _ := t.Table("goadmin_user_permissions").
 		LeftJoin("goadmin_permissions", "goadmin_permissions.id", "=", "goadmin_user_permissions.permission_id").
@@ -312,7 +354,7 @@ func (t UserModel) WithPermissions() UserModel {
 			continue
 		}
 		t.Permissions = append(t.Permissions, Permission().MapToModel(permissions[i]))
-	}
+	}*/
 
 	return t
 }
@@ -321,7 +363,7 @@ func (t UserModel) WithPermissions() UserModel {
 func (t UserModel) WithMenus() UserModel {
 
 	var menuIdsModel []map[string]interface{}
-
+	/*
 	if t.IsSuperAdmin() {
 		menuIdsModel, _ = t.Table("goadmin_role_menu").
 			LeftJoin("goadmin_menu", "goadmin_menu.id", "=", "goadmin_role_menu.menu_id").
@@ -351,9 +393,32 @@ func (t UserModel) WithMenus() UserModel {
 		} else {
 			menuIds = append(menuIds, mid["menu_id"].(int64))
 		}
+	}*/
+
+	if t.IsSuperAdmin(){
+		menuIdsModel,_ = t.Conn.Query(`SELECT id FROM goadmin_menu`)
+	}else{
+		menuIdsModel,_ = t.Conn.Query(`SELECT permission_id AS id,goadmin_menu.parent_id AS pid
+FROM goadmin_user_permissions 
+LEFT JOIN goadmin_menu ON goadmin_menu.id=goadmin_user_permissions.permission_id 
+WHERE user_id=?`, t.Id)
 	}
 
-	t.MenuIds = menuIds
+	mapIds := make(map[int64]struct{}, len(menuIdsModel)*2)
+	for _, mid := range menuIdsModel {
+		mid64,_ := strconv.Atoi(fmt.Sprintf(`%d`,mid[`id`]))
+		mapIds[int64(mid64)] = struct{}{}
+
+		if pid,ok := mid["pid"];ok {
+			pid64,_ := strconv.Atoi(fmt.Sprintf(`%d`,pid))
+			mapIds[int64(pid64)] = struct{}{}
+		}
+	}
+
+	for id,_ := range mapIds{
+		t.MenuIds = append(t.MenuIds,id)
+	}
+
 	return t
 }
 
@@ -463,13 +528,15 @@ func (t UserModel) CheckPermissionById(permissionId string) bool {
 
 // CheckPermission check the permission of the user.
 func (t UserModel) CheckPermission(permission string) bool {
-	for _, per := range t.Permissions {
+	return true
+
+	/*for _, per := range t.Permissions {
 		if per.Slug == permission {
 			return true
 		}
 	}
 
-	return false
+	return false*/
 }
 
 // DeletePermissions delete all the permissions of the user model.

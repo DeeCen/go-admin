@@ -7,6 +7,7 @@ package menu
 import (
 	"html/template"
 	"regexp"
+	//"fmt"
 	"strconv"
 	"strings"
 
@@ -215,6 +216,7 @@ func GetGlobalMenu(user models.UserModel, conn db.Connection, lang string, plugi
 	if len(menus) > 0 {
 		maxOrder = menus[len(menus)-1]["parent_id"].(int64)
 	}
+	//fmt.Println(`--------------menuList---------------`,menus,menuList)
 
 	return &Menu{
 		List:       menuList,

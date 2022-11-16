@@ -45,7 +45,7 @@ func (b Base) Form() types.FormAttribute {
 		Title:        "edit",
 		Attribute:    b.Attribute,
 		CdnUrl:       config.GetAssetUrl(),
-		HeadWidth:    2,
+		HeadWidth:    2,// 默认的编辑页表格字段宽度
 		InputWidth:   8,
 	}
 }

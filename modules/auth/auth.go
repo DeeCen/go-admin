@@ -7,14 +7,14 @@ package auth
 import (
 	"sync"
 
-	"github.com/GoAdminGroup/go-admin/modules/db/dialect"
-	"github.com/GoAdminGroup/go-admin/modules/logger"
+	//"github.com/GoAdminGroup/go-admin/modules/db/dialect"
+	//"github.com/GoAdminGroup/go-admin/modules/logger"
 
 	"github.com/GoAdminGroup/go-admin/context"
 	"github.com/GoAdminGroup/go-admin/modules/db"
 	"github.com/GoAdminGroup/go-admin/modules/service"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/models"
-	"github.com/GoAdminGroup/go-admin/plugins/admin/modules"
+	//"github.com/GoAdminGroup/go-admin/plugins/admin/modules"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,11 +24,12 @@ func Auth(ctx *context.Context) models.UserModel {
 }
 
 // Check check the password and username and return the user model.
-func Check(password string, username string, conn db.Connection) (user models.UserModel, ok bool) {
+func Check(password string, username string, conn db.Connection) (user models.UserModel, ok bool, errMsg string) {
 
 	user = models.User().SetConn(conn).FindByUserName(username)
 
 	if user.IsEmpty() {
+		errMsg = `用户不存在`
 		ok = false
 	} else {
 		if comparePassword(password, user.Password) {
@@ -36,6 +37,7 @@ func Check(password string, username string, conn db.Connection) (user models.Us
 			user = user.WithRoles().WithPermissions().WithMenus()
 			user.UpdatePwd(EncodePassword([]byte(password)))
 		} else {
+			errMsg = `密码错误`
 			ok = false
 		}
 	}
@@ -89,7 +91,7 @@ func (s *TokenService) Name() string {
 }
 
 func InitCSRFTokenSrv(conn db.Connection) (string, service.Service) {
-	list, err := db.WithDriver(conn).Table("goadmin_session").
+	/*list, err := db.WithDriver(conn).Table("goadmin_session").
 		Where("values", "=", "__csrf_token__").
 		All()
 	if db.CheckError(err, db.QUERY) {
@@ -98,9 +100,9 @@ func InitCSRFTokenSrv(conn db.Connection) (string, service.Service) {
 	tokens := make(CSRFToken, len(list))
 	for i := 0; i < len(list); i++ {
 		tokens[i] = list[i]["sid"].(string)
-	}
+	}*/
 	return TokenServiceKey, &TokenService{
-		tokens: tokens,
+		tokens: make(CSRFToken,0),
 		conn:   conn,
 	}
 }
@@ -119,7 +121,17 @@ func GetTokenService(s interface{}) *TokenService {
 
 // AddToken add the token to the CSRFToken.
 func (s *TokenService) AddToken() string {
-	s.lock.Lock()
+	/**
+		修改系统可以保留表单数据
+		1 表单验证器报错后,返回404
+		2 pjax页面不再刷新
+		3 继续使用旧token提交数据
+	    4 干脆移除token功能了
+	*/
+	return ``
+
+
+	/*s.lock.Lock()
 	defer s.lock.Unlock()
 	tokenStr := modules.Uuid()
 	s.tokens = append(s.tokens, tokenStr)
@@ -130,13 +142,14 @@ func (s *TokenService) AddToken() string {
 	if db.CheckError(err, db.INSERT) {
 		logger.Error("csrf token insert into database error: ", err)
 	}
-	return tokenStr
+	return tokenStr*/
 }
 
 // CheckToken check the given token with tokens in the CSRFToken, if exist
 // return true.
 func (s *TokenService) CheckToken(toCheckToken string) bool {
-	for i := 0; i < len(s.tokens); i++ {
+	return true
+	/*for i := 0; i < len(s.tokens); i++ {
 		if (s.tokens)[i] == toCheckToken {
 			s.tokens = append((s.tokens)[:i], (s.tokens)[i+1:]...)
 			err := db.WithDriver(s.conn).Table("goadmin_session").
@@ -149,7 +162,7 @@ func (s *TokenService) CheckToken(toCheckToken string) bool {
 			return true
 		}
 	}
-	return false
+	return false*/
 }
 
 // CSRFToken is type of a csrf token list.

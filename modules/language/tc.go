@@ -126,7 +126,7 @@ var tc = LangSet{
 	"initialize navigation buttons":   "初始化導航欄按鈕",
 	"initialize plugins":              "初始化插件",
 	"initialize database connections": "初始化數據庫連接",
-	"initialize success":              "初始化成功🍺🍺",
+	"initialize success":              "初始化成功",
 
 	"plugins":          "插件",
 	"plugin store":     "插件商店",

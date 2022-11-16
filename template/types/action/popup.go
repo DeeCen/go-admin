@@ -218,14 +218,17 @@ func PopUpWithCtxForm(data PopUpData, fn GetCtxForm, url string) *PopUpAction {
 			SetOrientationRight().
 			SetLoadingText(icon.Icon("fa-spinner fa-spin", 2) + language.GetFromHtml("Save")).
 			GetContent()
-		btn2 := template2.Default().Button().SetType("reset").
-			SetContent(language.GetFromHtml("Reset")).
-			SetThemeWarning().
-			SetOrientationLeft().
-			GetContent()
+		panel := fn(ctx, types.NewFormPanel())
+		btn2 := template.HTML(``)
+		if !panel.IsHideResetButton{
+			btn2 = template2.Default().Button().SetType("reset").
+				SetContent(language.GetFromHtml("Reset")).
+				SetThemeWarning().
+				SetOrientationLeft().
+				GetContent()
+		}
 		col2 := template2.Default().Col().SetSize(types.SizeMD(8)).
 			SetContent(btn1 + btn2).GetContent()
-		panel := fn(ctx, types.NewFormPanel())
 
 		operationHandlerSetter(panel.Callbacks...)
 
@@ -240,7 +243,9 @@ func PopUpWithCtxForm(data PopUpData, fn GetCtxForm, url string) *PopUpAction {
 				SetAjax(panel.AjaxSuccessJS, panel.AjaxErrorJS).
 				SetPrefix(config.PrefixFixSlash()).
 				SetUrl(url).
-				SetOperationFooter(col1 + col2).GetContent()).
+				SetOperationFooter(col1 + col2).
+				SetFooter(panel.FooterHtml).
+				GetContent()).
 			GetContent()
 	}
 	return &PopUpAction{
@@ -301,6 +306,7 @@ func (pop *PopUpAction) Js() template.JS {
                                     data = JSON.parse(data);
                                 }
                                 if (data.code === 0) {
+									$('#`+pop.Id+` .modal-body').html('');
                                     $('#`+pop.Id+` .modal-body').html(data.data);
                                 } else {
                                     swal(data.msg, '', 'error');

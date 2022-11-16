@@ -728,7 +728,7 @@ func (wh WhereRaw) Statement(wheres string, whereArgs []interface{}) (string, []
 		if wh.check() != 0 {
 			wheres += wh.Raw + " "
 		} else {
-			wheres += " and " + wh.Raw + " "
+			wheres = strings.TrimRight(wheres,` and `) + " and " + wh.Raw + " "
 		}
 
 		whereArgs = append(whereArgs, wh.Args...)
@@ -834,8 +834,10 @@ func NewInfoPanel(pk string) *InfoPanel {
 		WhereRaws:               WhereRaw{},
 		SortField:               pk,
 		TableLayout:             "auto",
-		FilterFormInputWidth:    10,
-		FilterFormHeadWidth:     2,
+		//FilterFormInputWidth:    10,
+		//FilterFormHeadWidth:     2,
+		FilterFormInputWidth:    8, // 表格页默认的搜索表单字段长度
+		FilterFormHeadWidth:     4, // 表格页默认的搜索表单字段描述长度,两个相加不能大于12
 		AutoRefresh:             0,
 	}
 }
@@ -851,8 +853,13 @@ func (i *InfoPanel) WhereOr(field string, operator string, arg interface{}) *Inf
 }
 
 func (i *InfoPanel) WhereRaw(raw string, arg ...interface{}) *InfoPanel {
-	i.WhereRaws.Raw = raw
-	i.WhereRaws.Args = arg
+	if i.WhereRaws.Raw==``{
+		i.WhereRaws.Raw = raw
+	}else if raw!=``{
+		i.WhereRaws.Raw += ` AND ` + raw
+	}
+
+	i.WhereRaws.Args = append(i.WhereRaws.Args, arg...)
 	return i
 }
 
@@ -1350,6 +1357,10 @@ func (i *InfoPanel) FieldFilterOptionsFromTable(table, textFieldName, valueField
 		ValueField:     valueFieldName,
 		QueryProcessFn: fn,
 	}
+
+	// 可清空
+	i.FieldList[i.curFieldListIndex].FilterFormFields[0].OptionExt = `{"allowClear": "true"}`
+
 	return i
 }
 

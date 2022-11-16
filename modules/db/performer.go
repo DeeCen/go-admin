@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"regexp"
 	"strings"
+	"fmt"
 )
 
 // CommonQuery is a common method of query.
@@ -17,6 +18,8 @@ func CommonQuery(db *sql.DB, query string, args ...interface{}) ([]map[string]in
 	rs, err := db.Query(query, args...)
 
 	if err != nil {
+		fmt.Println(`--------------CommonQuery panic--------------`)
+		fmt.Println(query, args, err.Error())
 		panic(err)
 	}
 

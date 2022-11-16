@@ -7,6 +7,7 @@ package auth
 import (
 	"net/http"
 	"net/url"
+	//"fmt"
 
 	"github.com/GoAdminGroup/go-admin/context"
 	"github.com/GoAdminGroup/go-admin/modules/config"
@@ -125,8 +126,12 @@ type MiddlewareCallback func(ctx *context.Context)
 // Middleware get the auth middleware from Invoker.
 func (invoker *Invoker) Middleware() context.Handler {
 	return func(ctx *context.Context) {
-		user, authOk, permissionOk := Filter(ctx, invoker.conn)
 
+		//fmt.Println(`----------------Middleware---------------`)
+		//fmt.Println(ctx.Request.URL)
+		//fmt.Println(`----------------Middleware---------------`)
+
+		user, authOk, permissionOk := Filter(ctx, invoker.conn)
 		if authOk && permissionOk {
 			ctx.SetUserValue("user", user)
 			ctx.Next()

@@ -49,7 +49,7 @@ func (h *Handler) Auth(ctx *context.Context) {
 			response.BadRequest(ctx, "wrong password or username")
 			return
 		}
-		user, ok = auth.Check(password, username, h.conn)
+		user, ok ,errMsg = auth.Check(password, username, h.conn)
 	} else {
 		user, ok, errMsg = auth.GetService(s).P(ctx)
 	}
