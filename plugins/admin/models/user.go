@@ -204,10 +204,9 @@ func (t UserModel) CheckPermissionByUrlMethod(path, method string, formParams ur
 func getMenuId(db db.Connection, uri string)(ret int64){
 	prefix := config.Url(``)
 	uri,_,_= strings.Cut(uri,`?`)
-	uri = strings.TrimLeft(uri, prefix)
+	uri = strings.TrimPrefix(uri, prefix)
 	uri = strings.TrimLeft(uri,`/`)
 	uri = `/` + uri
-
 	if uri==`` || uri==`/`{
 		return
 	}
