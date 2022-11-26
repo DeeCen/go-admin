@@ -1143,7 +1143,7 @@ func (i *InfoPanel) FieldFileSize() *InfoPanel {
 }
 
 func (i *InfoPanel) FieldDate(format string) *InfoPanel {
-	i.addDisplayChains(displayFnGens["date"].Get())
+	i.addDisplayChains(displayFnGens["date"].Get(format))
 	return i
 }
 
