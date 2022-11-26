@@ -77,8 +77,11 @@ func (h *Handler) setFormWithReturnErrMessage(ctx *context.Context, errMsg strin
 	if kind == "edit" {
 		f = panel.GetForm()
 		id := ctx.Query("id")
-		if id == "" {
-			id = ctx.Request.MultipartForm.Value[panel.GetPrimaryKey().Name][0]
+		key := panel.GetPrimaryKey().Name
+		if id == "" &&
+			ctx.Request.MultipartForm.Value!=nil &&
+			len(ctx.Request.MultipartForm.Value[key]) > 0 {
+			id = ctx.Request.MultipartForm.Value[key][0]
 		}
 		formInfo, _ = panel.GetDataWithId(parameter.GetParam(ctx.Request.URL,
 			panel.GetInfo().DefaultPageSize,

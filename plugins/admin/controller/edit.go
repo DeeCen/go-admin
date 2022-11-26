@@ -156,16 +156,19 @@ func (h *Handler) EditForm(ctx *context.Context) {
 	formPanel := param.Panel.GetForm()
 
 	for i := 0; i < len(formPanel.FieldList); i++ {
+		key := formPanel.FieldList[i].Field
+		delFlag := key+`__delete_flag`
+		changeFlag := key+`__change_flag`
 		if formPanel.FieldList[i].FormType == form.File &&
-			len(param.MultiForm.File[formPanel.FieldList[i].Field]) == 0 &&
-			len(param.MultiForm.Value[formPanel.FieldList[i].Field+"__delete_flag"]) > 0 &&
-			param.MultiForm.Value[formPanel.FieldList[i].Field+"__delete_flag"][0] != "1" {
-			param.MultiForm.Value[formPanel.FieldList[i].Field] = []string{""}
+			len(param.MultiForm.File[key]) == 0 &&
+			len(param.MultiForm.Value[delFlag]) > 0 &&
+			param.MultiForm.Value[delFlag][0] != "1" {
+			param.MultiForm.Value[key] = []string{""}
 		}
 		if formPanel.FieldList[i].FormType == form.File &&
-			len(param.MultiForm.Value[formPanel.FieldList[i].Field+"__change_flag"]) > 0 &&
-			param.MultiForm.Value[formPanel.FieldList[i].Field+"__change_flag"][0] != "1" {
-			delete(param.MultiForm.Value, formPanel.FieldList[i].Field)
+			len(param.MultiForm.Value[changeFlag]) > 0 &&
+			param.MultiForm.Value[changeFlag][0] != "1" {
+			delete(param.MultiForm.Value, key)
 		}
 	}
 

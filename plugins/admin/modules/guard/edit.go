@@ -124,9 +124,12 @@ func (g *Guard) EditForm(ctx *context.Context) {
 
 	var (
 		multiForm = ctx.Request.MultipartForm
-		id        = multiForm.Value[panel.GetPrimaryKey().Name][0]
-		values    = ctx.Request.MultipartForm.Value
+		id = ``
+		values = ctx.Request.MultipartForm.Value
 	)
+	if len(multiForm.Value[panel.GetPrimaryKey().Name])>0{
+		id = multiForm.Value[panel.GetPrimaryKey().Name][0]
+	}
 
 	ctx.SetUserValue(editFormParamKey, &EditFormParam{
 		Panel:        panel,
