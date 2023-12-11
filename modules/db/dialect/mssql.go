@@ -7,17 +7,17 @@ package dialect
 import "fmt"
 
 type mssql struct {
-	commonDialect
+    commonDialect
 }
 
 func (mssql) GetName() string {
-	return "mssql"
+    return "mssql"
 }
 
 func (mssql) ShowColumns(table string) string {
-	return fmt.Sprintf("select column_name, data_type from information_schema.columns where table_name = '%s'", table)
+    return fmt.Sprintf("select column_name, data_type from information_schema.columns where table_name = '%s'", table)
 }
 
 func (mssql) ShowTables() string {
-	return "select * from information_schema.TABLES"
+    return "select * from information_schema.TABLES"
 }

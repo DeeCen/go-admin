@@ -1,34 +1,34 @@
 package db
 
 import (
-	"fmt"
-	"os/exec"
-	"testing"
+    "fmt"
+    "os/exec"
+    "testing"
 
-	_ "github.com/GoAdminGroup/go-admin/modules/db/drivers/mysql"
+    _ "github.com/GoAdminGroup/go-admin/modules/db/drivers/mysql"
 )
 
 var driverTestMysqlConn Connection
 
 const (
-	driverTestDBName = "go-admin-statement-test"
+    driverTestDBName = "go-admin-statement-test"
 )
 
 func InitMysql() {
-	c := testConnDSN(DriverMysql, fmt.Sprintf("root:root@tcp(127.0.0.1:3306)/%s", driverTestDBName))
-	_, err := c.Exec(fmt.Sprintf("create database if not exists `%s`", driverTestDBName))
-	if err != nil {
-		panic(err)
-	}
+    c := testConnDSN(DriverMysql, fmt.Sprintf("root:root@tcp(127.0.0.1:3306)/%s", driverTestDBName))
+    _, err := c.Exec(fmt.Sprintf("create database if not exists `%s`", driverTestDBName))
+    if err != nil {
+        panic(err)
+    }
 
-	cmd := exec.Command("mysql", "-u", "root", "-proot", driverTestDBName,
-		"-e", "source "+testCurrentPath()+"/../../data/admin.sql")
-	err = cmd.Run()
-	if err != nil {
-		panic(err)
-	}
+    cmd := exec.Command("mysql", "-u", "root", "-proot", driverTestDBName,
+        "-e", "source "+testCurrentPath()+"/../../data/admin.sql")
+    err = cmd.Run()
+    if err != nil {
+        panic(err)
+    }
 
-	driverTestMysqlConn = testConnDSN(DriverMysql, fmt.Sprintf("root:root@tcp(127.0.0.1:3306)/%s", driverTestDBName))
+    driverTestMysqlConn = testConnDSN(DriverMysql, fmt.Sprintf("root:root@tcp(127.0.0.1:3306)/%s", driverTestDBName))
 }
 
 func TestMysqlSQL_WhereIn(t *testing.T)         { testSQLWhereIn(t, driverTestMysqlConn) }
@@ -50,7 +50,7 @@ func TestMysqlSQL_UpdateRaw(t *testing.T)       { testSQLUpdateRaw(t, driverTest
 func TestMysqlSQL_LeftJoin(t *testing.T)        { testSQLLeftJoin(t, driverTestMysqlConn) }
 func TestMysqlSQL_WithTransaction(t *testing.T) { testSQLWithTransaction(t, driverTestMysqlConn) }
 func TestMysqlSQL_WithTransactionByLevel(t *testing.T) {
-	testSQLWithTransactionByLevel(t, driverTestMysqlConn)
+    testSQLWithTransactionByLevel(t, driverTestMysqlConn)
 }
 func TestMysqlSQL_First(t *testing.T)       { testSQLFirst(t, driverTestMysqlConn) }
 func TestMysqlSQL_All(t *testing.T)         { testSQLAll(t, driverTestMysqlConn) }

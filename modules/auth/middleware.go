@@ -5,119 +5,122 @@
 package auth
 
 import (
-	"net/http"
-	"net/url"
-	//"fmt"
+    "fmt"
+    "net/http"
+    "net/url"
+    "strconv"
 
-	"github.com/GoAdminGroup/go-admin/context"
-	"github.com/GoAdminGroup/go-admin/modules/config"
-	"github.com/GoAdminGroup/go-admin/modules/constant"
-	"github.com/GoAdminGroup/go-admin/modules/db"
-	"github.com/GoAdminGroup/go-admin/modules/errors"
-	"github.com/GoAdminGroup/go-admin/modules/language"
-	"github.com/GoAdminGroup/go-admin/modules/logger"
-	"github.com/GoAdminGroup/go-admin/modules/page"
-	"github.com/GoAdminGroup/go-admin/plugins/admin/models"
-	template2 "github.com/GoAdminGroup/go-admin/template"
-	"github.com/GoAdminGroup/go-admin/template/types"
+    //"fmt"
+
+    "github.com/GoAdminGroup/go-admin/context"
+    "github.com/GoAdminGroup/go-admin/modules/config"
+    "github.com/GoAdminGroup/go-admin/modules/constant"
+    "github.com/GoAdminGroup/go-admin/modules/db"
+    "github.com/GoAdminGroup/go-admin/modules/errors"
+    "github.com/GoAdminGroup/go-admin/modules/language"
+    "github.com/GoAdminGroup/go-admin/modules/logger"
+    "github.com/GoAdminGroup/go-admin/modules/page"
+    "github.com/GoAdminGroup/go-admin/plugins/admin/models"
+    template2 "github.com/GoAdminGroup/go-admin/template"
+    "github.com/GoAdminGroup/go-admin/template/types"
 )
 
 // Invoker contains the callback functions which are used
 // in the route middleware.
 type Invoker struct {
-	prefix                 string
-	authFailCallback       MiddlewareCallback
-	permissionDenyCallback MiddlewareCallback
-	conn                   db.Connection
+    prefix                 string
+    authFailCallback       MiddlewareCallback
+    permissionDenyCallback MiddlewareCallback
+    conn                   db.Connection
 }
 
 // Middleware is the default auth middleware of plugins.
 func Middleware(conn db.Connection) context.Handler {
-	return DefaultInvoker(conn).Middleware()
+    return DefaultInvoker(conn).Middleware()
 }
 
 // DefaultInvoker return a default Invoker.
 func DefaultInvoker(conn db.Connection) *Invoker {
-	return &Invoker{
-		prefix: config.Prefix(),
-		authFailCallback: func(ctx *context.Context) {
-			if ctx.Request.URL.Path == config.Url(config.GetLoginUrl()) {
-				return
-			}
-			if ctx.Request.URL.Path == config.Url("/logout") {
-				ctx.Write(302, map[string]string{
-					"Location": config.Url(config.GetLoginUrl()),
-				}, ``)
-				return
-			}
-			param := ""
-			if ref := ctx.Referer(); ref != "" {
-				param = "?ref=" + url.QueryEscape(ref)
-			}
+    return &Invoker{
+        prefix: config.Prefix(),
+        authFailCallback: func(ctx *context.Context) {
+            if ctx.Request.URL.Path == config.Url(config.GetLoginUrl()) {
+                return
+            }
+            if ctx.Request.URL.Path == config.Url("/logout") {
+                ctx.Write(302, map[string]string{
+                    "Location": config.Url(config.GetLoginUrl()),
+                }, ``)
+                return
+            }
+            param := ""
+            if ref := ctx.Referer(); ref != "" {
+                param = "?ref=" + url.QueryEscape(ref)
+            }
 
-			u := config.Url(config.GetLoginUrl() + param)
-			_, err := ctx.Request.Cookie(DefaultCookieKey)
-			referer := ctx.Referer()
+            u := config.Url(config.GetLoginUrl() + param)
+            _, err := ctx.Request.Cookie(DefaultCookieKey)
+            referer := ctx.Referer()
 
-			if (ctx.Headers(constant.PjaxHeader) == "" && ctx.Method() != "GET") ||
-				err != nil ||
-				referer == "" {
-				ctx.Write(302, map[string]string{
-					"Location": u,
-				}, ``)
-			} else {
-				msg := language.Get("login overdue, please login again")
-				ctx.HTML(http.StatusOK, `<script>
-	if (typeof(swal) === "function") {
-		swal({
-			type: "info",
-			title: "`+language.Get("login info")+`",
-			text: "`+msg+`",
-			showCancelButton: false,
-			confirmButtonColor: "#3c8dbc",
-			confirmButtonText: '`+language.Get("got it")+`',
+            if (ctx.Headers(constant.PjaxHeader) == "" && ctx.Method() != "GET") ||
+                err != nil ||
+                referer == "" {
+                ctx.Write(302, map[string]string{
+                    "Location": u,
+                }, ``)
+            } else {
+                msg := language.Get("login overdue, please login again")
+                ctx.HTML(http.StatusOK, `<script>
+    if (typeof(swal) === "function") {
+        swal({
+            type: "info",
+            title: "`+language.Get("login info")+`",
+            text: "`+msg+`",
+            showCancelButton: false,
+            confirmButtonColor: "#3c8dbc",
+            confirmButtonText: '`+language.Get("got it")+`',
         })
-		setTimeout(function(){ location.href = "`+u+`"; }, 3000);
-	} else {
-		alert("`+msg+`")
-		location.href = "`+u+`"
+        setTimeout(function(){ location.href = "`+u+`"; }, 3000);
+    } else {
+        alert("`+msg+`")
+        location.href = "`+u+`"
     }
 </script>`)
-			}
-		},
-		permissionDenyCallback: func(ctx *context.Context) {
-			if ctx.Headers(constant.PjaxHeader) == "" && ctx.Method() != "GET" {
-				ctx.JSON(http.StatusForbidden, map[string]interface{}{
-					"code": http.StatusForbidden,
-					"msg":  language.Get(errors.PermissionDenied),
-				})
-			} else {
-				page.SetPageContent(ctx, Auth(ctx), func(ctx interface{}) (types.Panel, error) {
-					return template2.WarningPanel(errors.PermissionDenied, template2.NoPermission403Page), nil
-				}, conn)
-			}
-		},
-		conn: conn,
-	}
+            }
+        },
+        permissionDenyCallback: func(ctx *context.Context) {
+            if ctx.Headers(constant.PjaxHeader) == "" && ctx.Method() != "GET" {
+                ctx.JSON(http.StatusForbidden, map[string]interface{}{
+                    "code": http.StatusForbidden,
+                    "msg":  language.Get(errors.PermissionDenied),
+                })
+            } else {
+                page.SetPageContent(ctx, Auth(ctx), func(ctx interface{}) (types.Panel, error) {
+                    return template2.WarningPanel(errors.PermissionDenied, template2.NoPermission403Page), nil
+                }, conn)
+            }
+        },
+        conn: conn,
+    }
 }
 
 // SetPrefix return the default Invoker with the given prefix.
-func SetPrefix(prefix string, conn db.Connection) *Invoker {
-	i := DefaultInvoker(conn)
-	i.prefix = prefix
-	return i
-}
+/*func SetPrefix(prefix string, conn db.Connection) *Invoker {
+    i := DefaultInvoker(conn)
+    i.prefix = prefix
+    return i
+}*/
 
 // SetAuthFailCallback set the authFailCallback of Invoker.
 func (invoker *Invoker) SetAuthFailCallback(callback MiddlewareCallback) *Invoker {
-	invoker.authFailCallback = callback
-	return invoker
+    invoker.authFailCallback = callback
+    return invoker
 }
 
 // SetPermissionDenyCallback set the permissionDenyCallback of Invoker.
 func (invoker *Invoker) SetPermissionDenyCallback(callback MiddlewareCallback) *Invoker {
-	invoker.permissionDenyCallback = callback
-	return invoker
+    invoker.permissionDenyCallback = callback
+    return invoker
 }
 
 // MiddlewareCallback is type of callback function.
@@ -125,122 +128,116 @@ type MiddlewareCallback func(ctx *context.Context)
 
 // Middleware get the auth middleware from Invoker.
 func (invoker *Invoker) Middleware() context.Handler {
-	return func(ctx *context.Context) {
+    return func(ctx *context.Context) {
 
-		//fmt.Println(`----------------Middleware---------------`)
-		//fmt.Println(ctx.Request.URL)
-		//fmt.Println(`----------------Middleware---------------`)
+        //fmt.Println(`----------------Middleware---------------`)
+        //fmt.Println(ctx.Request.URL)
+        //fmt.Println(`----------------Middleware---------------`)
 
-		user, authOk, permissionOk := Filter(ctx, invoker.conn)
-		if authOk && permissionOk {
-			ctx.SetUserValue("user", user)
-			ctx.Next()
-			return
-		}
+        user, authOk, permissionOk := Filter(ctx, invoker.conn)
+        if authOk && permissionOk {
+            ctx.SetUserValue("user", user)
+            ctx.Next()
+            return
+        }
 
-		if !authOk {
-			invoker.authFailCallback(ctx)
-			ctx.Abort()
-			return
-		}
+        if !authOk {
+            invoker.authFailCallback(ctx)
+            ctx.Abort()
+            return
+        }
 
-		if !permissionOk {
-			ctx.SetUserValue("user", user)
-			invoker.permissionDenyCallback(ctx)
-			ctx.Abort()
-			return
-		}
-	}
+        if !permissionOk {
+            ctx.SetUserValue("user", user)
+            invoker.permissionDenyCallback(ctx)
+            ctx.Abort()
+            return
+        }
+    }
 }
 
 // Filter retrieve the user model from Context and check the permission
 // at the same time.
 func Filter(ctx *context.Context, conn db.Connection) (models.UserModel, bool, bool) {
-	var (
-		id float64
-		ok bool
+    var (
+        ok       bool
+        user     = models.User()
+        ses, err = InitSession(ctx)
+    )
 
-		user     = models.User()
-		ses, err = InitSession(ctx, conn)
-	)
+    if err != nil {
+        logger.Error("Filter retrieve auth user failed:", err)
+        return user, false, false
+    }
 
-	if err != nil {
-		logger.Error("Filter retrieve auth user failed", err)
-		return user, false, false
-	}
+    id := fmt.Sprintf(`%v`, ses.Get(`userId`))
+    userId, err := strconv.Atoi(id)
+    if err != nil {
+        logger.Warn(`Filter auth user userId failed:`, id)
+        return user, false, false
+    }
 
-	if id, ok = ses.Get("user_id").(float64); !ok {
-		logger.Warn("Filter auth user user_id failed")
-		return user, false, false
-	}
+    user, ok = GetCurUserByID(int64(userId), conn)
+    if !ok {
+        logger.Warn("Filter auth user GetCurUserByID failed id=", userId)
+        return user, false, false
+    }
 
-	user, ok = GetCurUserByID(int64(id), conn)
-	if !ok {
-		logger.Warn("Filter auth user GetCurUserByID failed id=", id)
-		return user, false, false
-	}
-
-	return user, true, CheckPermissions(user, ctx.Request.URL.String(), ctx.Method(), ctx.PostForm())
+    return user, true, CheckPermissions(user, ctx.Request.URL.String(), ctx.Method(), ctx.PostForm())
 }
 
-const defaultUserIDSesKey = "user_id"
+const defaultUserIDSesKey = "userId"
 
 // GetUserID return the user id from the session.
-func GetUserID(sesKey string, conn db.Connection) int64 {
-	id, err := GetSessionByKey(sesKey, defaultUserIDSesKey, conn)
-	if err != nil {
-		logger.Error("retrieve auth user failed", err)
-		return -1
-	}
-	if idFloat64, ok := id.(float64); ok {
-		return int64(idFloat64)
-	}
-	return -1
+func GetUserID(ctx *context.Context) int64 {
+    id, err := GetSessionByKey(ctx, defaultUserIDSesKey)
+    if err != nil {
+        logger.Error("retrieve auth user failed", err)
+        return -1
+    }
+    if idFloat64, ok := id.(float64); ok {
+        return int64(idFloat64)
+    }
+    return -1
 }
 
 // GetCurUser return the user model.
-func GetCurUser(sesKey string, conn db.Connection) (user models.UserModel, ok bool) {
-
-	if sesKey == "" {
-		ok = false
-		return
-	}
-
-	id := GetUserID(sesKey, conn)
-	if id == -1 {
-		ok = false
-		return
-	}
-	return GetCurUserByID(id, conn)
+func GetCurUser(ctx *context.Context, conn db.Connection) (user models.UserModel, ok bool) {
+    id := GetUserID(ctx)
+    if id == -1 {
+        ok = false
+        return
+    }
+    return GetCurUserByID(id, conn)
 }
 
 // GetCurUserByID return the user model of given user id.
 func GetCurUserByID(id int64, conn db.Connection) (user models.UserModel, ok bool) {
 
-	user = models.User().SetConn(conn).Find(id)
+    user = models.User().SetConn(conn).Find(id)
 
-	if user.IsEmpty() {
-		ok = false
-		return
-	}
+    if user.IsEmpty() {
+        ok = false
+        return
+    }
 
-	if user.Avatar == "" || config.GetStore().Prefix == "" {
-		user.Avatar = ""
-	} else {
-		user.Avatar = config.GetStore().URL(user.Avatar)
-	}
+    if user.Avatar == "" || config.GetStore().Prefix == "" {
+        user.Avatar = ""
+    } else {
+        user.Avatar = config.GetStore().URL(user.Avatar)
+    }
 
-	user = user.WithRoles().WithPermissions().WithMenus()
+    user = user.WithRoles().WithPermissions().WithMenus()
 
-	ok = user.HasMenu()
-	if ok==false {
-		logger.Error("HasMenu false user.id=", user.Id)
-	}
+    ok = user.HasMenu()
+    if ok == false {
+        logger.Error("HasMenu false user.id=", user.ID)
+    }
 
-	return
+    return
 }
 
 // CheckPermissions check the permission of the user.
 func CheckPermissions(user models.UserModel, path, method string, param url.Values) bool {
-	return user.CheckPermissionByUrlMethod(path, method, param)
+    return user.CheckPermissionByUrlMethod(path, method, param)
 }

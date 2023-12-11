@@ -5,17 +5,17 @@
 package dialect
 
 type sqlite struct {
-	commonDialect
+    commonDialect
 }
 
 func (sqlite) GetName() string {
-	return "sqlite"
+    return "sqlite"
 }
 
 func (sqlite) ShowColumns(table string) string {
-	return "PRAGMA table_info(" + table + ");"
+    return "PRAGMA table_info(" + table + ");"
 }
 
 func (sqlite) ShowTables() string {
-	return "SELECT name as tablename FROM sqlite_master WHERE type ='table'"
+    return "SELECT name as tablename FROM sqlite_master WHERE type ='table'"
 }

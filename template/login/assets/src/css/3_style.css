@@ -1,7 +1,7 @@
 /* =======================================================
 *
-* 	Template Style 
-*	Edit this section
+*     Template Style
+*    Edit this section
 *
 * ======================================================= */
 body {
@@ -132,11 +132,11 @@ a:hover {
   text-transform: uppercase;
 }
 .copyrights{
-	text-indent:-9999px;
-	height:0;
-	line-height:0;
-	font-size:0;
-	overflow:hidden;
+    text-indent:-9999px;
+    height:0;
+    line-height:0;
+    font-size:0;
+    overflow:hidden;
 }
 .fh5co-form .form-control:-moz-placeholder {
   color: rgba(0, 0, 0, 0.3);

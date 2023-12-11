@@ -1,35 +1,35 @@
 package db
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
-	"path"
-	"testing"
+    "fmt"
+    "os"
+    "os/exec"
+    "path"
+    "testing"
 
-	_ "github.com/GoAdminGroup/go-admin/modules/db/drivers/postgres"
+    _ "github.com/GoAdminGroup/go-admin/modules/db/drivers/postgres"
 )
 
 var driverTestPgConn Connection
 
 func InitPostgresql() {
 
-	cmd := exec.Command("createdb -p 5433 -U postgres " + driverTestDBName)
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "PGPASSWORD=root")
-	_ = cmd.Run()
+    cmd := exec.Command("createdb -p 5433 -U postgres " + driverTestDBName)
+    cmd.Env = os.Environ()
+    cmd.Env = append(cmd.Env, "PGPASSWORD=root")
+    _ = cmd.Run()
 
-	cmd = exec.Command("psql", "-h", "localhost", "-U", "root", "-proot", "-d", driverTestDBName,
-		"-f", path.Dir(path.Dir(testCurrentPath()))+"/data/admin.pgsql")
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "PGPASSWORD=root")
-	err := cmd.Run()
-	if err != nil {
-		panic(err)
-	}
+    cmd = exec.Command("psql", "-h", "localhost", "-U", "root", "-proot", "-d", driverTestDBName,
+        "-f", path.Dir(path.Dir(testCurrentPath()))+"/data/admin.pgsql")
+    cmd.Env = os.Environ()
+    cmd.Env = append(cmd.Env, "PGPASSWORD=root")
+    err := cmd.Run()
+    if err != nil {
+        panic(err)
+    }
 
-	driverTestPgConn = testConnDSN(DriverPostgresql, fmt.Sprintf("host=127.0.0.1 port=5433 user=postgres "+
-		"password=root dbname=%s sslmode=disable", driverTestDBName))
+    driverTestPgConn = testConnDSN(DriverPostgresql, fmt.Sprintf("host=127.0.0.1 port=5433 user=postgres "+
+        "password=root dbname=%s sslmode=disable", driverTestDBName))
 }
 
 func TestPgSQL_WhereIn(t *testing.T)         { testSQLWhereIn(t, driverTestPgConn) }
@@ -51,7 +51,7 @@ func TestPgSQL_UpdateRaw(t *testing.T)       { testSQLUpdateRaw(t, driverTestPgC
 func TestPgSQL_LeftJoin(t *testing.T)        { testSQLLeftJoin(t, driverTestPgConn) }
 func TestPgSQL_WithTransaction(t *testing.T) { testSQLWithTransaction(t, driverTestPgConn) }
 func TestPgSQL_WithTransactionByLevel(t *testing.T) {
-	testSQLWithTransactionByLevel(t, driverTestPgConn)
+    testSQLWithTransactionByLevel(t, driverTestPgConn)
 }
 func TestPgSQL_First(t *testing.T)       { testSQLFirst(t, driverTestPgConn) }
 func TestPgSQL_All(t *testing.T)         { testSQLAll(t, driverTestPgConn) }

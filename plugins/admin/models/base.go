@@ -1,24 +1,27 @@
+// Package models model
 package models
 
 import (
-	"database/sql"
+    "database/sql"
 
-	"github.com/GoAdminGroup/go-admin/modules/db"
+    "github.com/GoAdminGroup/go-admin/modules/db"
 )
 
 // Base is base model structure.
 type Base struct {
-	TableName string
+    TableName string
 
-	Conn db.Connection
-	Tx   *sql.Tx
+    Conn db.Connection
+    Tx   *sql.Tx
 }
 
+// SetConn 设置数据库连接
 func (b Base) SetConn(con db.Connection) Base {
-	b.Conn = con
-	return b
+    b.Conn = con
+    return b
 }
 
+// Table 设置表名
 func (b Base) Table(table string) *db.SQL {
-	return db.Table(table).WithDriver(b.Conn)
+    return db.Table(table).WithDriver(b.Conn)
 }

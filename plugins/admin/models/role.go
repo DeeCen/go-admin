@@ -1,128 +1,130 @@
 package models
 
 import (
-	"database/sql"
-	"strconv"
-	"time"
+    "database/sql"
+    "strconv"
+    "time"
 
-	"github.com/GoAdminGroup/go-admin/modules/db"
-	"github.com/GoAdminGroup/go-admin/modules/db/dialect"
+    "github.com/GoAdminGroup/go-admin/modules/db"
+    "github.com/GoAdminGroup/go-admin/modules/db/dialect"
 )
 
 // RoleModel is role model structure.
 type RoleModel struct {
-	Base
+    Base
 
-	Id        int64
-	Name      string
-	Slug      string
-	CreatedAt string
-	UpdatedAt string
+    ID       int64
+    Name     string
+    Slug     string
+    CreateAt int64
+    UpdateAt int64
 }
 
 // Role return a default role model.
 func Role() RoleModel {
-	return RoleModel{Base: Base{TableName: "goadmin_roles"}}
+    return RoleModel{Base: Base{TableName: "goadmin_role"}}
 }
 
 // RoleWithId return a default role model of given id.
 func RoleWithId(id string) RoleModel {
-	idInt, _ := strconv.Atoi(id)
-	return RoleModel{Base: Base{TableName: "goadmin_roles"}, Id: int64(idInt)}
+    idInt, _ := strconv.Atoi(id)
+    return RoleModel{Base: Base{TableName: "goadmin_role"}, ID: int64(idInt)}
 }
 
 func (t RoleModel) SetConn(con db.Connection) RoleModel {
-	t.Conn = con
-	return t
+    t.Conn = con
+    return t
 }
 
 func (t RoleModel) WithTx(tx *sql.Tx) RoleModel {
-	t.Tx = tx
-	return t
+    t.Tx = tx
+    return t
 }
 
 // Find return a default role model of given id.
 func (t RoleModel) Find(id interface{}) RoleModel {
-	item, _ := t.Table(t.TableName).Find(id)
-	return t.MapToModel(item)
+    item, _ := t.Table(t.TableName).Find(id)
+    return t.MapToModel(item)
 }
 
-// IsSlugExist check the row exist with given slug and id.
-func (t RoleModel) IsSlugExist(slug string, id string) bool {
-	if id == "" {
-		check, _ := t.Table(t.TableName).Where("slug", "=", slug).First()
-		return check != nil
-	}
-	check, _ := t.Table(t.TableName).
-		Where("slug", "=", slug).
-		Where("id", "!=", id).
-		First()
-	return check != nil
+// IsNameExist check the row exist with given name and id.
+func (t RoleModel) IsNameExist(name string, id string) bool {
+    if id == "" {
+        check, _ := t.Table(t.TableName).Where("name", "=", name).First()
+        return check != nil
+    }
+    check, _ := t.Table(t.TableName).
+        Where("name", "=", name).
+        Where("id", "!=", id).
+        First()
+    return check != nil
 }
 
 // New create a role model.
 func (t RoleModel) New(name, slug string) (RoleModel, error) {
 
-	id, err := t.WithTx(t.Tx).Table(t.TableName).Insert(dialect.H{
-		"name": name,
-		"slug": slug,
-	})
+    id, err := t.WithTx(t.Tx).Table(t.TableName).Insert(dialect.H{
+        "name":     name,
+        "slug":     slug,
+        "createat": time.Now().Unix(),
+    })
 
-	t.Id = id
-	t.Name = name
-	t.Slug = slug
+    t.ID = id
+    t.Name = name
+    t.Slug = slug
 
-	return t, err
+    return t, err
 }
 
 // Update update the role model.
 func (t RoleModel) Update(name, slug string) (int64, error) {
 
-	return t.WithTx(t.Tx).Table(t.TableName).
-		Where("id", "=", t.Id).
-		Update(dialect.H{
-			"name":       name,
-			"slug":       slug,
-			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
-		})
+    return t.WithTx(t.Tx).Table(t.TableName).
+        Where("id", "=", t.ID).
+        Update(dialect.H{
+            "name":     name,
+            "slug":     slug,
+            "updateat": uint32(time.Now().Unix()),
+        })
 }
 
 // CheckPermission check the permission of role.
-func (t RoleModel) CheckPermission(permissionId string) bool {
-	checkPermission, _ := t.Table("goadmin_role_permissions").
-		Where("permission_id", "=", permissionId).
-		Where("role_id", "=", t.Id).
-		First()
-	return checkPermission != nil
+func (t RoleModel) CheckPermission(menuId string) bool {
+    checkPermission, _ := t.Table("goadmin_role_menu").
+        Where("menuId", "=", menuId).
+        Where("roleId", "=", t.ID).
+        First()
+    return checkPermission != nil
 }
 
 // DeletePermissions delete all the permissions of role.
 func (t RoleModel) DeletePermissions() error {
-	return t.WithTx(t.Tx).Table("goadmin_role_permissions").
-		Where("role_id", "=", t.Id).
-		Delete()
+    return t.WithTx(t.Tx).Table("goadmin_role_menu").
+        Where("roleId", "=", t.ID).
+        Delete()
 }
 
 // AddPermission add the permissions to the role.
-func (t RoleModel) AddPermission(permissionId string) (int64, error) {
-	if permissionId != "" {
-		if !t.CheckPermission(permissionId) {
-			return t.WithTx(t.Tx).Table("goadmin_role_permissions").
-				Insert(dialect.H{
-					"permission_id": permissionId,
-					"role_id":       t.Id,
-				})
-		}
-	}
-	return 0, nil
+func (t RoleModel) AddPermission(menuId string) (int64, error) {
+
+    if menuId != "" && !t.CheckPermission(menuId) {
+        return t.WithTx(t.Tx).Table("goadmin_role_menu").
+            Insert(dialect.H{
+                "menuId":   menuId,
+                "roleId":   t.ID,
+                "createat": uint32(time.Now().Unix()),
+            })
+    }
+
+    return 0, nil
 }
 
 // MapToModel get the role model from given map.
 func (t RoleModel) MapToModel(m map[string]interface{}) RoleModel {
-	t.Id = m["id"].(int64)
-	t.Name, _ = m["name"].(string)
-	t.Slug, _ = m["slug"].(string)
-	t.CreatedAt, _ = m["created_at"].(string)
-	t.UpdatedAt, _ = m["updated_at"].(string)
-	return t
+    t.ID = m["id"].(int64)
+    t.Name, _ = m["name"].(string)
+    t.Slug, _ = m["slug"].(string)
+    t.CreateAt, _ = m["createAt"].(int64)
+    t.UpdateAt, _ = m["updateAt"].(int64)
+    return t
 }

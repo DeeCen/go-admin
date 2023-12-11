@@ -1,236 +1,174 @@
-// Copyright 2019 GoAdmin Core Team. All rights reserved.
-// Use of this source code is governed by a Apache-2.0 style
-// license that can be found in the LICENSE file.
-
+// Package auth 登录验证
 package auth
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-	"time"
+    "encoding/base64"
+    "encoding/json"
+    "errors"
+    "fmt"
+    "net/http"
+    "time"
 
-	"github.com/GoAdminGroup/go-admin/context"
-	"github.com/GoAdminGroup/go-admin/modules/config"
-	"github.com/GoAdminGroup/go-admin/modules/db"
-	"github.com/GoAdminGroup/go-admin/modules/db/dialect"
-	"github.com/GoAdminGroup/go-admin/modules/logger"
-	"github.com/GoAdminGroup/go-admin/plugins/admin/modules"
+    "github.com/GoAdminGroup/go-admin/context"
+    "github.com/GoAdminGroup/go-admin/modules/config"
+    "github.com/GoAdminGroup/go-admin/modules/logger"
 )
 
-const DefaultCookieKey = "go_admin_session"
-
-// NewDBDriver return the default PersistenceDriver.
-func newDBDriver(conn db.Connection) *DBDriver {
-	return &DBDriver{
-		conn:      conn,
-		tableName: "goadmin_session",
-	}
-}
-
-// PersistenceDriver is a driver of storing and getting the session info.
-type PersistenceDriver interface {
-	Load(string) (map[string]interface{}, error)
-	Update(sid string, values map[string]interface{}) error
-}
+// DefaultCookieKey cookie name
+const DefaultCookieKey = "adminToken"
 
 // GetSessionByKey get the session value by key.
-func GetSessionByKey(sesKey, key string, conn db.Connection) (interface{}, error) {
-	m, err := newDBDriver(conn).Load(sesKey)
-	return m[key], err
+func GetSessionByKey(ctx *context.Context, key string) (interface{}, error) {
+    ses, err := InitSession(ctx)
+    if err != nil {
+        return nil, err
+    }
+
+    return ses.Get(key), nil
+}
+
+// InitSession return the default Session.
+func InitSession(ctx *context.Context) (*Session, error) {
+    sessions := new(Session)
+
+    sessions.Expires = time.Second * time.Duration(config.GetSessionLifeTime())
+    sessions.CookieKey = DefaultCookieKey
+    sessions.Values = make(map[string]interface{})
+
+    return sessions.StartCtx(ctx)
 }
 
 // Session contains info of session.
 type Session struct {
-	Expires time.Duration
-	Cookie  string
-	Values  map[string]interface{}
-	Driver  PersistenceDriver
-	Sid     string
-	Context *context.Context
+    Context   *context.Context
+    Expires   time.Duration
+    CookieKey string
+    Values    map[string]interface{}
 }
 
-// Config wraps the Session info.
-type Config struct {
-	Expires time.Duration
-	Cookie  string
-}
-
-// UpdateConfig update the Expires and Cookie of Session.
-func (ses *Session) UpdateConfig(config Config) {
-	ses.Expires = config.Expires
-	ses.Cookie = config.Cookie
-}
-
-// Get get the session value.
+// Get  the session value.
 func (ses *Session) Get(key string) interface{} {
-	return ses.Values[key]
+    return ses.Values[key]
 }
 
-// Add add the session value of key.
+// Add the session value of key.
 func (ses *Session) Add(key string, value interface{}) error {
-	ses.Values[key] = value
-	if err := ses.Driver.Update(ses.Sid, ses.Values); err != nil {
-		return err
-	}
-	cookie := http.Cookie{
-		Name:     ses.Cookie,
-		Value:    ses.Sid,
-		MaxAge:   config.GetSessionLifeTime(),
-		Expires:  time.Now().Add(ses.Expires),
-		HttpOnly: true,
-		Path:     "/",
-	}
-	if config.GetDomain() != "" {
-		cookie.Domain = config.GetDomain()
-	}
-	ses.Context.SetCookie(&cookie)
-	return nil
+    ses.Values[key] = value
+    return ses.sendCookie()
 }
 
-// Clear clear a Session.
+// sendCookie send cookie header.
+func (ses *Session) sendCookie() error {
+    maxExp := time.Hour * 24 * 30
+    if maxExp > ses.Expires {
+        maxExp = ses.Expires
+    }
+
+    val := ses.Values
+    val[`_ttl`] = uint32(time.Now().Add(maxExp).Unix())
+    jsonByte, err := json.Marshal(val)
+    if err != nil {
+        return err
+    }
+
+    cookie := http.Cookie{
+        Name:     ses.CookieKey,
+        Value:    string(cookieEncode(jsonByte)),
+        MaxAge:   config.GetSessionLifeTime(),
+        Expires:  time.Now().Add(ses.Expires),
+        HttpOnly: true,
+        Path:     "/",
+    }
+    if config.GetDomain() != "" {
+        cookie.Domain = config.GetDomain()
+    }
+    ses.Context.SetCookie(&cookie)
+    return nil
+}
+
 func (ses *Session) Clear() error {
-	ses.Values = map[string]interface{}{}
-	return ses.Driver.Update(ses.Sid, ses.Values)
-}
-
-// UseDriver set the driver of the Session.
-func (ses *Session) UseDriver(driver PersistenceDriver) {
-	ses.Driver = driver
+    ses.Values = map[string]interface{}{}
+    return ses.sendCookie()
 }
 
 // StartCtx return a Session from the given Context.
-func (ses *Session) StartCtx(ctx *context.Context) (*Session, error) {
-	if cookie, err := ctx.Request.Cookie(ses.Cookie); err == nil && cookie.Value != "" {
-		ses.Sid = cookie.Value
-		valueFromDriver, err := ses.Driver.Load(cookie.Value)
-		if err != nil {
-			return nil, err
-		}
-		if len(valueFromDriver) > 0 {
-			ses.Values = valueFromDriver
-		}
-	} else {
-		ses.Sid = modules.Uuid()
-	}
-	ses.Context = ctx
-	return ses, nil
+func (ses *Session) StartCtx(ctx *context.Context) (ret *Session, err error) {
+    ret = ses
+    ret.Context = ctx
+
+    cookie, e := ctx.Request.Cookie(ses.CookieKey)
+    if e != nil {
+        //err = fmt.Errorf(`ctx.Request.Cookie: %w`, e)
+        return
+    }
+
+    if cookie.Value == "" {
+        //err = errors.New(`ctx.Request.Cookie empty`)
+        return
+    }
+
+    jsonByte, e := cookieDecode([]byte(cookie.Value))
+    if e != nil {
+        err = fmt.Errorf(`ctx.Request.Cookie decode err: %w`, e)
+        return
+    }
+
+    var values map[string]interface{}
+    err = json.Unmarshal(jsonByte, &values)
+    if err != nil {
+        err = fmt.Errorf(`ctx.Request.Cookie json err: %w`, err)
+        return
+    }
+
+    ttl, ok := values[`_ttl`]
+    if ok == false {
+        err = errors.New(`cookie ttl err`)
+        return
+    }
+
+    // cookie 有效但过期,ttl类型uint32会被自动转为float64
+    if ttl64, ok := ttl.(float64); ok == false || ttl64 < float64(time.Now().Unix()) {
+        logger.Warn(`cookie ttl change float64 fail`, values)
+        return
+    }
+
+    ret.Values = values
+    return
 }
 
-// InitSession return the default Session.
-func InitSession(ctx *context.Context, conn db.Connection) (*Session, error) {
+const cookieKey = `6c6b512c4cea6a7cb54655d75c797608`
 
-	sessions := new(Session)
-	sessions.UpdateConfig(Config{
-		Expires: time.Second * time.Duration(config.GetSessionLifeTime()),
-		Cookie:  DefaultCookieKey,
-	})
-
-	sessions.UseDriver(newDBDriver(conn))
-	sessions.Values = make(map[string]interface{})
-
-	return sessions.StartCtx(ctx)
+// cookieEncode cookie加密
+func cookieEncode(s []byte) []byte {
+    for k, v := range s {
+        s[k] = v ^ cookieKey[k%32]
+    }
+    return Base64Encode(s)
 }
 
-// DBDriver is a driver which uses database as a persistence tool.
-type DBDriver struct {
-	conn      db.Connection
-	tableName string
+// cookieDecode cookie解密
+func cookieDecode(s []byte) ([]byte, error) {
+    ret, err := Base64Decode(s)
+    if err != nil {
+        return nil, err
+    }
+
+    for k, v := range ret {
+        ret[k] = v ^ cookieKey[k%32]
+    }
+    return ret, nil
 }
 
-// Load implements the PersistenceDriver.Load.
-func (driver *DBDriver) Load(sid string) (map[string]interface{}, error) {
-	sesModel, err := driver.table().Where("sid", "=", sid).First()
-
-	if db.CheckError(err, db.QUERY) {
-		return nil, err
-	}
-
-	if sesModel == nil {
-		return map[string]interface{}{}, nil
-	}
-
-	var values map[string]interface{}
-	err = json.Unmarshal([]byte(sesModel["values"].(string)), &values)
-	return values, err
+// Base64Encode 计算base64,url格式
+func Base64Encode(s []byte) []byte {
+    var ret = make([]byte, base64.URLEncoding.EncodedLen(len(s)))
+    base64.URLEncoding.Encode(ret, s)
+    return ret
 }
 
-func (driver *DBDriver) deleteOverdueSession() {
-
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error(err)
-			panic(err)
-		}
-	}()
-
-	var (
-		duration   = strconv.Itoa(config.GetSessionLifeTime() + 1000)
-		driverName = config.GetDatabases().GetDefault().Driver
-		raw        = ``
-	)
-
-	if db.DriverPostgresql == driverName {
-		raw = `extract(epoch from now()) - ` + duration + ` > extract(epoch from created_at)`
-	} else if db.DriverMysql == driverName {
-		raw = `unix_timestamp(created_at) < unix_timestamp() - ` + duration
-	} else if db.DriverSqlite == driverName {
-		raw = `strftime('%s', created_at) < strftime('%s', 'now') - ` + duration
-	} else if db.DriverMssql == driverName {
-		raw = `DATEDIFF(second, [created_at], GETDATE()) > ` + duration
-	}
-
-	if raw != "" {
-		_ = driver.table().WhereRaw(raw).Delete()
-	}
-}
-
-// Update implements the PersistenceDriver.Update.
-func (driver *DBDriver) Update(sid string, values map[string]interface{}) error {
-
-	go driver.deleteOverdueSession()
-
-	if sid != "" {
-		if len(values) == 0 {
-			err := driver.table().Where("sid", "=", sid).Delete()
-			if db.CheckError(err, db.DELETE) {
-				return err
-			}
-		}
-		valuesByte, err := json.Marshal(values)
-		if err != nil {
-			return err
-		}
-		sesValue := string(valuesByte)
-		sesModel, _ := driver.table().Where("sid", "=", sid).First()
-		if sesModel == nil {
-			if !config.GetNoLimitLoginIP() {
-				err = driver.table().Where("values", "=", sesValue).Delete()
-				if db.CheckError(err, db.DELETE) {
-					return err
-				}
-			}
-			_, err := driver.table().Insert(dialect.H{
-				"values": sesValue,
-				"sid":    sid,
-			})
-			if db.CheckError(err, db.INSERT) {
-				return err
-			}
-		} else {
-			_, err := driver.table().
-				Where("sid", "=", sid).
-				Update(dialect.H{
-					"values": sesValue,
-				})
-			if db.CheckError(err, db.UPDATE) {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (driver *DBDriver) table() *db.SQL {
-	return db.Table(driver.tableName).WithDriver(driver.conn)
+// Base64Decode 解密base64,url格式
+func Base64Decode(s []byte) ([]byte, error) {
+    ret := make([]byte, base64.URLEncoding.DecodedLen(len(s)))
+    l, err := base64.URLEncoding.Decode(ret, s)
+    return ret[:l], err
 }

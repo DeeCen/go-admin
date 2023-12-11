@@ -1,16 +1,16 @@
 package db
 
 import (
-	"testing"
+    "testing"
 
-	"github.com/GoAdminGroup/go-admin/modules/config"
-	_ "github.com/GoAdminGroup/go-admin/modules/db/drivers/sqlite"
+    "github.com/GoAdminGroup/go-admin/modules/config"
+    _ "github.com/GoAdminGroup/go-admin/modules/db/drivers/sqlite"
 )
 
 var driverTestSQLiteConn Connection
 
 func InitSqlite() {
-	driverTestSQLiteConn = testConn(DriverSqlite, config.Database{File: "/admin.db"})
+    driverTestSQLiteConn = testConn(DriverSqlite, config.Database{File: "/admin.db"})
 }
 
 func TestSQLiteSQL_WhereIn(t *testing.T)         { testSQLWhereIn(t, driverTestSQLiteConn) }
@@ -32,7 +32,7 @@ func TestSQLiteSQL_UpdateRaw(t *testing.T)       { testSQLUpdateRaw(t, driverTes
 func TestSQLiteSQL_LeftJoin(t *testing.T)        { testSQLLeftJoin(t, driverTestSQLiteConn) }
 func TestSQLiteSQL_WithTransaction(t *testing.T) { testSQLWithTransaction(t, driverTestSQLiteConn) }
 func TestSQLiteSQL_WithTransactionByLevel(t *testing.T) {
-	testSQLWithTransactionByLevel(t, driverTestSQLiteConn)
+    testSQLWithTransactionByLevel(t, driverTestSQLiteConn)
 }
 func TestSQLiteSQL_First(t *testing.T)       { testSQLFirst(t, driverTestSQLiteConn) }
 func TestSQLiteSQL_All(t *testing.T)         { testSQLAll(t, driverTestSQLiteConn) }

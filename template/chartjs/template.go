@@ -1,7 +1,7 @@
 package chartjs
 
 var List = map[string]string{
-	"chartjs": `{{define "chartjs"}}
+    "chartjs": `{{define "chartjs"}}
     {{if ne .Title ""}}
         <p class="text-center">
             <strong>{{langHtml .Title}}</strong>

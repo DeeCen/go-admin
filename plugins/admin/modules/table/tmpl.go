@@ -29,7 +29,7 @@ var tmpls = map[string]string{"choose_table_ajax": `{{define "choose_table_ajax"
             if (!(data.data[1][i] === pk || (pk === "" && data.data[1][i] === "id"))) {
                 $(trs_form[i]).find('input.field_canadd').iCheck("check");
             }
-            if (data.data[1][i] === "created_at" || data.data[1][i] === "updated_at") {
+            if (data.data[1][i] === "createAt" || data.data[1][i] === "updateAt") {
                 $(trs_form[i]).find('select.field_display').val("1").select2();
             }
             $(trs_form[i]).find('select.field_db_type_form').val(data.data[2][i]).select2();

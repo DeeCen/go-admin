@@ -1,29 +1,29 @@
 package db
 
 import (
-	"database/sql"
-	"testing"
+    "database/sql"
+    "testing"
 
-	_ "github.com/GoAdminGroup/go-admin/modules/db/drivers/mssql"
-	_ "github.com/GoAdminGroup/go-admin/modules/db/drivers/postgres"
-	"github.com/magiconair/properties/assert"
+    _ "github.com/GoAdminGroup/go-admin/modules/db/drivers/mssql"
+    _ "github.com/GoAdminGroup/go-admin/modules/db/drivers/postgres"
+    "github.com/magiconair/properties/assert"
 )
 
 func testSQLWhereIn(t *testing.T, conn Connection) {
 
-	item, _ := WithDriver(conn).Table("goadmin_users").WhereIn("id", []interface{}{"1", "2"}).First()
-	assert.Equal(t, len(item), 2)
+    item, _ := WithDriver(conn).Table("goadmin_user").WhereIn("id", []interface{}{"1", "2"}).First()
+    assert.Equal(t, len(item), 2)
 
-	_, _ = WithDriver(conn).WithTransaction(func(tx *sql.Tx) (e error, i map[string]interface{}) {
-		item, _ := WithDriver(conn).WithTx(tx).Table("goadmin_users").WhereIn("id", []interface{}{"1", "2"}).All()
-		assert.Equal(t, len(item), 2)
-		return nil, nil
-	})
+    _, _ = WithDriver(conn).WithTransaction(func(tx *sql.Tx) (e error, i map[string]interface{}) {
+        item, _ := WithDriver(conn).WithTx(tx).Table("goadmin_user").WhereIn("id", []interface{}{"1", "2"}).All()
+        assert.Equal(t, len(item), 2)
+        return nil, nil
+    })
 }
 
 func testSQLCount(t *testing.T, conn Connection) {
-	count, _ := WithDriver(conn).Table("goadmin_users").Count()
-	assert.Equal(t, count, int64(2))
+    count, _ := WithDriver(conn).Table("goadmin_user").Count()
+    assert.Equal(t, count, int64(2))
 }
 
 // TODO
