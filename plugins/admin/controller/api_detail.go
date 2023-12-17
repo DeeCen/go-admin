@@ -75,8 +75,9 @@ function DeletePost(id) {
             confirmButtonText: '%s',
             closeOnConfirm: false,
             cancelButtonText: '%s',
-        },
-        function () {
+        }).then(
+        function (isDel) {
+            if(!isDel){return;}
             $.ajax({
                 method: 'post',
                 url: '%s',

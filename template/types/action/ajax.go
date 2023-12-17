@@ -169,10 +169,11 @@ func (ajax *AjaxAction) Js() template.JS {
 
     if ajax.Alert {
         b, _ := json.Marshal(ajax.AlertData)
-        ajaxStatement = "swal(" + string(b) + `,
-                    function () {
-                        ` + ajaxStatement + `
-                    });`
+        ajaxStatement = "swal(" + string(b) + `)).then(
+        function (isDel) {
+            if(!isDel){return;}
+            ` + ajaxStatement + `
+        });`
     }
 
     return template.JS(`$('`+ajax.BtnId+`').on('`+string(ajax.Event)+`', function (event) {

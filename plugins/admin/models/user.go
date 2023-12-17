@@ -231,11 +231,11 @@ func InitURI2MenuURIData(k string) {
     key = strings.ReplaceAll(f.Update, `:__prefix`, k)
     uriToMenuURI[key] = val
 
-    fmt.Println(`-----------InitURI2MenuURIData-----------`, k, len(uriToMenuURI))
-    for key, val = range uriToMenuURI {
-        fmt.Printf(`%s => %s%s`, key, val, "\n")
-    }
-    fmt.Println(`---------------------------------------------------------`)
+    /*fmt.Println(`-----------InitURI2MenuURIData-----------`, k, len(uriToMenuURI))
+      for key, val = range uriToMenuURI {
+          fmt.Printf(`%s => %s%s`, key, val, "\n")
+      }
+      fmt.Println(`---------------------------------------------------------`)*/
 }
 
 // getMenuId 获取菜单id,不存在时返回0
