@@ -126,6 +126,9 @@ func (g *Guard) EditForm(ctx *context.Context) {
         id        = ``
         values    = ctx.Request.MultipartForm.Value
     )
+    if len(multiForm.Value[panel.GetPrimaryKey().Name]) > 0 {
+        id = multiForm.Value[panel.GetPrimaryKey().Name][0]
+    }
 
     if multiForm.Value != nil && len(multiForm.Value[panel.GetPrimaryKey().Name]) > 0 {
         id = multiForm.Value[panel.GetPrimaryKey().Name][0]

@@ -132,7 +132,7 @@ func (db *Mssql) parseSql(sql string) string {
     }
 
     res, err := matchAllString(patten, sql)
-    if err != nil {
+    if err != nil || len(res) == 0 {
         //fmt.Println("MatchString error.", err)
         return ""
     }
