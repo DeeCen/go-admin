@@ -768,6 +768,9 @@ func (tb *DefaultTable) GetDataWithId(param parameter.Parameters) (FormInfo, err
 
 // UpdateDate update data.
 func (tb *DefaultTable) UpdateDate(dataList form.Values) error {
+    if dataList==nil{
+        return errors.New(`UpdateDate value==nil`)
+    }
 
     dataList.Add(form.PostTypeKey, "0")
 

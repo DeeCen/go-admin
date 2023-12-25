@@ -15,8 +15,11 @@ import (
 
 func (h *Handler) ApiUpdate(ctx *context.Context) {
     param := guard.GetEditFormParam(ctx)
+    if param==nil{
+        return
+    }
 
-    if len(param.MultiForm.File) > 0 {
+    if param.MultiForm!=nil && len(param.MultiForm.File) > 0 {
         err := file.GetFileEngine(h.config.FileUploadEngine.Name).Upload(param.MultiForm)
         if err != nil {
             response.Error(ctx, err.Error())

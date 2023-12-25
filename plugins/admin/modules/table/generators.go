@@ -642,7 +642,7 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
 func (s *SystemTable) GetSiteTable(_ *context.Context) (siteTable Table) {
     siteTable = NewDefaultTable(DefaultConfigWithDriver(config.GetDatabases().GetDefault().Driver).
         SetOnlyUpdateForm().
-        SetGetDataFun(func(params parameter.Parameters) (i []map[string]interface{}, i2 int) {
+        SetGetDataFun(func(_ parameter.Parameters) ([]map[string]interface{}, int) {
             return []map[string]interface{}{models.Site().SetConn(s.conn).AllToMapInterface()}, 1
         }))
 
@@ -909,7 +909,6 @@ func (s *SystemTable) GetSiteTable(_ *context.Context) (siteTable Table) {
         SetDescription(lgWithConfigScore("site setting"))
 
     formList.SetUpdateFn(func(values form2.Values) error {
-
         ses := values.Get("session_life_time")
         sesInt, _ := strconv.Atoi(ses)
         if sesInt < 900 {

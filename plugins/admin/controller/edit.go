@@ -140,8 +140,11 @@ func (h *Handler) showForm(ctx *context.Context, alert template2.HTML, prefix st
 // EditForm 编辑表单
 func (h *Handler) EditForm(ctx *context.Context) {
     param := guard.GetEditFormParam(ctx)
+    if param==nil{
+        return
+    }
 
-    if len(param.MultiForm.File) > 0 {
+    if param.MultiForm!=nil && len(param.MultiForm.File) > 0 {
         err := file.GetFileEngine(h.config.FileUploadEngine.Name).Upload(param.MultiForm)
         if err != nil {
             logger.Error("get file engine error: ", err)
@@ -204,7 +207,6 @@ func (h *Handler) EditForm(ctx *context.Context) {
     }
 
     if !param.FromList {
-
         if isNewUrl(param.PreviousPath, param.Prefix) {
             h.showNewForm(ctx, param.Alert, param.Prefix, param.Param.DeleteEditPk().GetRouteParamStr(), true)
             return
@@ -232,7 +234,6 @@ func (h *Handler) EditForm(ctx *context.Context) {
     }
 
     buf := h.showTable(ctx, param.Prefix, param.Param.DeletePK().DeleteEditPk(), nil)
-
     ctx.HTML(http.StatusOK, buf.String())
     ctx.AddHeader(constant.PjaxURLHeader, param.PreviousPath)
 }

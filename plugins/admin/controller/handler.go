@@ -78,6 +78,8 @@ func (h *Handler) setFormWithReturnErrMessage(ctx *context.Context, errMsg strin
         f = panel.GetForm()
         id := ctx.Query("id")
         if id == "" &&
+            ctx.Request !=nil &&
+            ctx.Request.MultipartForm !=nil &&
             ctx.Request.MultipartForm.Value != nil &&
             len(ctx.Request.MultipartForm.Value[panel.GetPrimaryKey().Name]) > 0 {
             id = ctx.Request.MultipartForm.Value[panel.GetPrimaryKey().Name][0]

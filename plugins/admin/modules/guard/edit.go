@@ -90,7 +90,11 @@ type EditFormParam struct {
 }
 
 func (e EditFormParam) Value() form.Values {
-    return e.MultiForm.Value
+    if  e.MultiForm!=nil{
+        return e.MultiForm.Value
+    }
+
+    return nil
 }
 
 func (g *Guard) EditForm(ctx *context.Context) {
@@ -124,14 +128,21 @@ func (g *Guard) EditForm(ctx *context.Context) {
     var (
         multiForm = ctx.Request.MultipartForm
         id        = ``
-        values    = ctx.Request.MultipartForm.Value
     )
-    if len(multiForm.Value[panel.GetPrimaryKey().Name]) > 0 {
-        id = multiForm.Value[panel.GetPrimaryKey().Name][0]
+
+    // 修复 multiForm 为nil引发的bug
+    if multiForm==nil{
+        multiForm = new(multipart.Form)
+        multiForm.Value = ctx.Request.Form
     }
 
-    if multiForm.Value != nil && len(multiForm.Value[panel.GetPrimaryKey().Name]) > 0 {
-        id = multiForm.Value[panel.GetPrimaryKey().Name][0]
+    var values map[string][]string
+    if multiForm != nil {
+        values = multiForm.Value
+    }
+
+    if values!=nil && len(values[panel.GetPrimaryKey().Name]) > 0 {
+        id = values[panel.GetPrimaryKey().Name][0]
     }
 
     ctx.SetUserValue(editFormParamKey, &EditFormParam{
@@ -156,7 +167,12 @@ func isInfoURL(s string) bool {
 }
 
 func GetEditFormParam(ctx *context.Context) *EditFormParam {
-    return ctx.UserValue[editFormParamKey].(*EditFormParam)
+    if v,ok := ctx.UserValue[editFormParamKey];ok{
+        if ret,ok := v.(*EditFormParam);ok{
+            return ret
+        }
+    }
+    return nil
 }
 
 func alert(ctx *context.Context, panel table.Table, msg string, conn db.Connection, btn *types.Buttons) {

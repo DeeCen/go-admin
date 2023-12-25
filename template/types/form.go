@@ -1414,10 +1414,9 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
             ` + text + `
             showCancelButton: false,
             confirmButtonColor: "#3c8dbc",
-            confirmButtonText: '` + language.Get("got it") + `',
-        ).then(function (isDel) {
+            confirmButtonText: '` + language.Get("got it") + `'
+        }).then(function (isDel) {
             if(!isDel){return;}
-            $.ajax({
             swal.close();
             $(".modal-backdrop.fade.in").remove();
             $('button.close[data-dismiss="modal"]').click();
