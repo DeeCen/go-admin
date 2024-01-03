@@ -27,30 +27,30 @@ type Parameters struct {
 }
 
 const (
-    Page     = "__page"
-    PageSize = "__pageSize"
-    Sort     = "__sort"
-    SortType = "__sort_type"
-    Columns  = "__columns"
+    Page     = "_p"
+    PageSize = "_ps"
+    Sort     = "_srt"
+    SortType = "_st"
+    Columns  = "_cols"
     Prefix   = "__prefix"
     Pjax     = "_pjax"
 
     sortTypeDesc = "desc"
     sortTypeAsc  = "asc"
 
-    IsAll      = "__is_all"
-    PrimaryKey = "__pk"
+    IsAll      = "_isAll"
+    PrimaryKey = "_pk"
 
     True  = "true"
     False = "false"
 
-    FilterRangeParamStartSuffix = "_start__goadmin"
-    FilterRangeParamEndSuffix   = "_end__goadmin"
-    FilterParamJoinInfix        = "_goadmin_join_"
-    FilterParamOperatorSuffix   = "__goadmin_operator__"
-    FilterParamCountInfix       = "__goadmin_index__"
+    FilterRangeParamStartSuffix = "_start_key"
+    FilterRangeParamEndSuffix   = "_end_key"
+    FilterParamJoinInfix        = "_adm_join_"
+    FilterParamOperatorSuffix   = "_key_operator"
+    FilterParamCountInfix       = "_key_index__"
 
-    Separator = "__goadmin_separator__"
+    Separator = "_separator"
 )
 
 var operators = map[string]string{
@@ -399,6 +399,24 @@ func (param Parameters) Statement(wheres, table, delimiter, delimiter2 string, w
             continue
         }
 
+        // like的 sql 注入 bug
+        if op == `like` {
+            valueFilter := make([]string, 0)
+            for k := range value {
+                valNew := strings.ReplaceAll(value[k], `%`, ``)
+                valNew = strings.ReplaceAll(valNew, `_`, ``)
+                if valNew != `` {
+                    valueFilter = append(valueFilter, valNew)
+                }
+            }
+
+            value = valueFilter
+
+            if len(value) == 0 {
+                continue
+            }
+        }
+
         if strings.Contains(key, FilterParamJoinInfix) {
             keys := strings.Split(key, FilterParamJoinInfix)
             val := filterProcess(key, value[0], keyIndexSuffix)
@@ -411,7 +429,7 @@ func (param Parameters) Statement(wheres, table, delimiter, delimiter2 string, w
             } else {
                 wheres += keys[0] + "." + modules.FilterField(keys[1], delimiter, delimiter2) + " " + op + " ? and "
             }
-            if op == "like" && !strings.Contains(val, "%") {
+            if op == "like" && val != `` && !strings.Contains(val, "%") {
                 whereArgs = append(whereArgs, "%"+val+"%")
             } else {
                 for _, v := range value {
@@ -429,7 +447,8 @@ func (param Parameters) Statement(wheres, table, delimiter, delimiter2 string, w
                 } else {
                     wheres += table + "." + modules.FilterField(key, delimiter, delimiter2) + " " + op + " ? and "
                 }
-                if op == "like" && !strings.Contains(value[0], "%") {
+
+                if op == "like" && len(value) > 0 && value[0] != `` && !strings.Contains(value[0], "%") {
                     whereArgs = append(whereArgs, "%"+filterProcess(key, value[0], keyIndexSuffix)+"%")
                 } else {
                     for _, v := range value {

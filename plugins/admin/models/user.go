@@ -4,7 +4,6 @@ import (
     "database/sql"
     "fmt"
     "net/url"
-    "regexp"
     "strconv"
     "strings"
     "time"
@@ -93,19 +92,20 @@ func (t UserModel) IsSuperAdmin() bool {
     return false
 }
 
-func (t UserModel) GetCheckPermissionByUrlMethod(path, method string) string {
-    if !t.CheckPermissionByUrlMethod(path, method, url.Values{}) {
+func (t UserModel) GetCheckPermissionByUrlMethod(path, _ string) string {
+    // 这里是检查是否拥有操作权限,目前已不拆分页面和按钮权限,直接返回path即可
+    /*if !t.CheckPermissionByUrlMethod(path, method, url.Values{}) {
         return ""
-    }
+    }*/
     return path
 }
 
-func (t UserModel) IsVisitor() bool {
-    return !t.CheckPermissionByUrlMethod(config.Url("/info/normal_manager"), "GET", url.Values{})
-}
+/*func (t UserModel) IsVisitor() bool {
+    return !t.CheckPermissionByUrlMethod(config.Url("/show/normal_manager"), "GET", url.Values{})
+}*/
 
 func (t UserModel) HideUserCenterEntrance() bool {
-    return t.IsVisitor() && config.GetHideVisitorUserCenterEntrance()
+    return false
 }
 
 func (t UserModel) Template(str string) string {
@@ -117,8 +117,20 @@ func (t UserModel) Template(str string) string {
 }
 
 func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool {
+    // 来到这里用户已经登录了
     path, _ = url.PathUnescape(path)
     if t.IsSuperAdmin() {
+        return true
+    }
+
+    //println(`-------------------Prefix=`, config.Prefix())
+
+    // 登出
+    // 管理自身信息的地址
+    // 系统首页
+    if strings.HasSuffix(path, `/logout`) ||
+        strings.Contains(path, `/normal_manager`) ||
+        path == config.Prefix() {
         return true
     }
 
@@ -126,9 +138,9 @@ func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool
         return false
     }
 
-    logoutCheck, _ := regexp.Compile(config.Url("/logout") + "(.*?)")
-    if logoutCheck.MatchString(path) {
-        return true
+    // 系统bug,查看menu系列全菜单统一检查指定的菜单路径
+    if strings.Contains(path, `/menu`) {
+        path = `/menu`
     }
 
     // 当前改为判断是否有菜单即可
@@ -136,9 +148,13 @@ func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool
         path = path[:len(path)-1]
     }
 
+    //println(`-------------------debug CheckPermissionByUrlMethod`)
+    //println(path)
+    //fmt.Printf(`%#v`, t.MenuIds)
+
     id := getMenuId(t.Conn, path)
     if id == 0 {
-        return true
+        return false
     }
 
     for _, v := range t.MenuIds {
@@ -148,56 +164,10 @@ func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool
     }
 
     return false
-
-    /*
-       path = utils.ReplaceAll(path, constant.EditPKKey, "id", constant.DetailPKKey, "id")
-       path, params := getParam(path)
-       for key, value := range formParams {
-           if len(value) > 0 {
-               params.Add(key, value[0])
-           }
-       }
-
-       for _, v := range t.Permissions {
-           if v.HttpMethod[0] == "" || inMethodArr(v.HttpMethod, method) {
-
-               if v.HttpPath[0] == "*" {
-                   return true
-               }
-
-               for i := 0; i < len(v.HttpPath); i++ {
-
-                   matchPath := config.Url(t.Template(strings.TrimSpace(v.HttpPath[i])))
-                   matchPath, matchParam := getParam(matchPath)
-
-                   if matchPath == path {
-                       if t.checkParam(params, matchParam) {
-                           return true
-                       }
-                   }
-
-                   reg, err := regexp.Compile(matchPath)
-
-                   if err != nil {
-                       logger.Error("CheckPermissions error: ", err)
-                       continue
-                   }
-
-                   if reg.FindString(path) == path {
-                       if t.checkParam(params, matchParam) {
-                           return true
-                       }
-                   }
-               }
-           }
-       }
-
-       return false
-    */
 }
 
 // Read Only After Init
-var uriToMenuURI = map[string]string{}
+var uriToMenuURI = map[string]string{`/menu`: `/menu`}
 
 // InitURI2MenuURIData 生成uri与菜单填入的uri对应关系,用于权限验证时找到数据库菜单判断是否有权限
 func InitURI2MenuURIData(k string) {
@@ -207,8 +177,8 @@ func InitURI2MenuURIData(k string) {
     val := strings.ReplaceAll(f.Info, `:__prefix`, k)
     uriToMenuURI[val] = val
 
-    key = strings.ReplaceAll(f.Detail, `:__prefix`, k)
-    uriToMenuURI[key] = val
+    /*key = strings.ReplaceAll(f.Detail, `:__prefix`, k)
+      uriToMenuURI[key] = val*/
 
     key = strings.ReplaceAll(f.Create, `:__prefix`, k)
     uriToMenuURI[key] = val
@@ -228,8 +198,8 @@ func InitURI2MenuURIData(k string) {
     key = strings.ReplaceAll(f.ShowCreate, `:__prefix`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.Update, `:__prefix`, k)
-    uriToMenuURI[key] = val
+    //key = strings.ReplaceAll(f.Update, `:__prefix`, k)
+    //uriToMenuURI[key] = val
 
     /*fmt.Println(`-----------InitURI2MenuURIData-----------`, k, len(uriToMenuURI))
       for key, val = range uriToMenuURI {
@@ -256,7 +226,7 @@ func getMenuId(db db.Connection, uri string) (ret int64) {
         ret = int64(id)
     }
 
-    //fmt.Println(`------------getMenuId---------------`, uri, menuURI, ret)
+    //fmt.Println(`------------getMenuId---------------`, uriToMenuURI, uri, menuURI, ret)
 
     return
 }
@@ -291,9 +261,8 @@ func (t UserModel) checkParam(src, comp url.Values) bool {
         for i := 0; i < len(v); i++ {
             if v[i] == t.Template(value[i]) {
                 continue
-            } else {
-                return false
             }
+            return false
         }
     }
     return true
@@ -415,7 +384,9 @@ func (t UserModel) WithMenus() UserModel {
         // 子菜单的父菜单权限也拥有
         if pid, ok := mid["pid"]; ok {
             pid64, _ := strconv.Atoi(fmt.Sprintf(`%d`, pid))
-            mapIds[int64(pid64)] = struct{}{}
+            if pid64 > 0 {
+                mapIds[int64(pid64)] = struct{}{}
+            }
         }
     }
 
@@ -453,7 +424,7 @@ func (t UserModel) Update(username, password, name, avatar string, isUpdateAvata
     fieldValues := dialect.H{
         "username": username,
         "name":     name,
-        "updateat": uint32(time.Now().Unix()),
+        "updateAt": uint32(time.Now().Unix()),
     }
 
     if avatar == "" || isUpdateAvatar {
@@ -483,9 +454,9 @@ func (t UserModel) UpdatePwd(password string) UserModel {
 }
 
 // CheckRoleId check the role of the user model.
-func (t UserModel) CheckRoleId(roleId string) bool {
+func (t UserModel) CheckRoleId(roleID string) bool {
     checkRole, _ := t.Table("goadmin_role_user").
-        Where("roleId", "=", roleId).
+        Where("roleId", "=", roleID).
         Where("userId", "=", t.ID).
         First()
     return checkRole != nil

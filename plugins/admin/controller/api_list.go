@@ -1,13 +1,13 @@
 package controller
 
 import (
-    "github.com/GoAdminGroup/go-admin/context"
+    /*"github.com/GoAdminGroup/go-admin/context"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/parameter"
-    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/response"
+    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/response"*/
 )
 
-func (h *Handler) ApiList(ctx *context.Context) {
+/*func (h *Handler) ApiList(ctx *context.Context) {
     prefix := ctx.Query(constant.PrefixKey)
 
     panel := h.table(prefix, ctx)
@@ -36,4 +36,4 @@ func (h *Handler) ApiList(ctx *context.Context) {
             "update": urls[6],
         },
     })
-}
+}*/

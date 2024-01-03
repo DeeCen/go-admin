@@ -161,14 +161,14 @@ func (d DatabaseList) Connections() []string {
     return connArr
 }
 
-func GetDatabaseListFromJSON(m string) DatabaseList {
+/*func GetDatabaseListFromJSON(m string) DatabaseList {
     var d = make(DatabaseList)
     if m == "" {
         panic("wrong config")
     }
     _ = json.Unmarshal([]byte(m), &d)
     return d
-}
+}*/
 
 const (
     // EnvTest is a const value of test environment.
@@ -230,14 +230,14 @@ func (s Store) JSON() string {
     return utils.JSON(s)
 }
 
-func GetStoreFromJSON(m string) Store {
+/*func GetStoreFromJSON(m string) Store {
     var s Store
     if m == "" {
         return s
     }
     _ = json.Unmarshal([]byte(m), &s)
     return s
-}
+}*/
 
 // Config type is the global config of goAdmin. It will be
 // initialized in the engine.
@@ -247,7 +247,7 @@ type Config struct {
     // file connection.go.
     Databases DatabaseList `json:"database,omitempty" yaml:"database,omitempty" ini:"database,omitempty"`
 
-    // The application unique Id. Once generated, don't modify.
+    // The application uniqueId. Once generated, don't modify.
     AppID string `json:"app_id,omitempty" yaml:"app_id,omitempty" ini:"app_id,omitempty"`
 
     // The cookie domain used in the auth modules. see
@@ -427,27 +427,27 @@ type RotateCfg struct {
 }
 
 type URLFormat struct {
-    Info       string `json:"info,omitempty" yaml:"info,omitempty" ini:"info,omitempty"`
-    Detail     string `json:"detail,omitempty" yaml:"detail,omitempty" ini:"detail,omitempty"`
+    Info string `json:"info,omitempty" yaml:"info,omitempty" ini:"info,omitempty"`
+    // Detail     string `json:"detail,omitempty" yaml:"detail,omitempty" ini:"detail,omitempty"`
     Create     string `json:"create,omitempty" yaml:"create,omitempty" ini:"create,omitempty"`
     Delete     string `json:"delete,omitempty" yaml:"delete,omitempty" ini:"delete,omitempty"`
     Export     string `json:"export,omitempty" yaml:"export,omitempty" ini:"export,omitempty"`
     Edit       string `json:"edit,omitempty" yaml:"edit,omitempty" ini:"edit,omitempty"`
     ShowEdit   string `json:"show_edit,omitempty" yaml:"show_edit,omitempty" ini:"show_edit,omitempty"`
     ShowCreate string `json:"show_create,omitempty" yaml:"show_create,omitempty" ini:"show_create,omitempty"`
-    Update     string `json:"update,omitempty" yaml:"update,omitempty" ini:"update,omitempty"`
+    // Update     string `json:"update,omitempty" yaml:"update,omitempty" ini:"update,omitempty"`
 }
 
 func (f URLFormat) SetDefault() URLFormat {
-    f.Detail = utils.SetDefault(f.Detail, "", "/info/:__prefix/detail")
-    f.ShowEdit = utils.SetDefault(f.ShowEdit, "", "/info/:__prefix/edit")
-    f.ShowCreate = utils.SetDefault(f.ShowCreate, "", "/info/:__prefix/new")
-    f.Edit = utils.SetDefault(f.Edit, "", "/edit/:__prefix")
-    f.Create = utils.SetDefault(f.Create, "", "/new/:__prefix")
-    f.Delete = utils.SetDefault(f.Delete, "", "/delete/:__prefix")
-    f.Export = utils.SetDefault(f.Export, "", "/export/:__prefix")
-    f.Info = utils.SetDefault(f.Info, "", "/info/:__prefix")
-    f.Update = utils.SetDefault(f.Update, "", "/update/:__prefix")
+    //f.Detail = utils.SetDefault(f.Detail, "", "/detail/:__prefix")
+    f.Info = utils.SetDefault(f.Info, "", "/list/:__prefix")
+    f.ShowEdit = utils.SetDefault(f.ShowEdit, "", "/show/:__prefix")
+    f.ShowCreate = utils.SetDefault(f.ShowCreate, "", "/new/:__prefix")
+    f.Export = utils.SetDefault(f.Export, "", "/excel/:__prefix")
+    f.Create = utils.SetDefault(f.Create, "", "/add/:__prefix")
+    f.Delete = utils.SetDefault(f.Delete, "", "/del/:__prefix")
+    f.Edit = utils.SetDefault(f.Edit, "", "/up/:__prefix")
+    //f.Update = utils.SetDefault(f.Update, "", "/upOne/:__prefix")
     return f
 }
 
@@ -979,9 +979,9 @@ func IsProductionEnvironment() bool {
 }
 
 // IsNotProductionEnvironment check the environment if it is not production.
-func IsNotProductionEnvironment() bool {
+/*func IsNotProductionEnvironment() bool {
     return _global.IsNotProductionEnvironment()
-}
+}*/
 
 // URLRemovePrefix remove prefix from the given url.
 func URLRemovePrefix(url string) string {
@@ -1052,7 +1052,7 @@ func GetUrlPrefix() string {
     return _global.UrlPrefix
 }
 
-func GetOpenAdminApi() bool {
+/*func GetOpenAdminApi() bool {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.OpenAdminApi
@@ -1068,7 +1068,7 @@ func GetOperationLogOff() bool {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.OperationLogOff
-}
+}*/
 
 func GetCustom500HTML() template.HTML {
     _global.lock.RLock()
@@ -1130,11 +1130,11 @@ func GetMiniLogo() template.HTML {
     return _global.MiniLogo
 }
 
-func GetIndexUrl() string {
+/*func GetIndexUrl() string {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.IndexUrl
-}
+}*/
 
 func GetLoginUrl() string {
     _global.lock.RLock()
@@ -1148,6 +1148,7 @@ func GetDebug() bool {
     return _global.Debug
 }
 
+/*
 func GetEnv() string {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
@@ -1183,16 +1184,18 @@ func GetAccessLogOff() bool {
     defer _global.lock.RUnlock()
     return _global.AccessLogOff
 }
+
 func GetInfoLogOff() bool {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.InfoLogOff
 }
+
 func GetErrorLogOff() bool {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.ErrorLogOff
-}
+}*/
 
 func GetColorScheme() string {
     _global.lock.RLock()
@@ -1236,6 +1239,7 @@ func GetFooterInfo() template.HTML {
     return _global.FooterInfo
 }
 
+/*
 func GetLoginTitle() string {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
@@ -1246,7 +1250,7 @@ func GetLoginLogo() template.HTML {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.LoginLogo
-}
+}*/
 
 func GetAuthUserTable() string {
     _global.lock.RLock()
@@ -1254,11 +1258,11 @@ func GetAuthUserTable() string {
     return _global.AuthUserTable
 }
 
-func GetExtra() map[string]interface{} {
+/*func GetExtra() map[string]interface{} {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.Extra
-}
+}*/
 
 func GetAnimation() PageAnimation {
     _global.lock.RLock()
@@ -1266,11 +1270,11 @@ func GetAnimation() PageAnimation {
     return _global.Animation
 }
 
-func GetNoLimitLoginIP() bool {
+/*func GetNoLimitLoginIP() bool {
     _global.lock.RLock()
     defer _global.lock.RUnlock()
     return _global.NoLimitLoginIP
-}
+}*/
 
 func GetHideVisitorUserCenterEntrance() bool {
     _global.lock.RLock()

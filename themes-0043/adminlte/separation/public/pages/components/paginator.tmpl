@@ -42,7 +42,7 @@
         {{$url := .Url}}
         <select class="input-sm grid-per-pager" name="per-page">
             {{range $key, $pageSize := .PageSizeList}}
-                <option value="{{$url}}&__pageSize={{$pageSize}}" {{index $option $pageSize}}>
+                <option value="{{$url}}&_ps={{$pageSize}}" {{index $option $pageSize}}>
                     {{$pageSize}}
                 </option>
             {{end}}

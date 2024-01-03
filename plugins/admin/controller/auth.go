@@ -12,7 +12,6 @@ import (
     "github.com/GoAdminGroup/go-admin/modules/config"
     "github.com/GoAdminGroup/go-admin/modules/logger"
     "github.com/GoAdminGroup/go-admin/modules/system"
-    "github.com/GoAdminGroup/go-admin/plugins/admin/models"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/captcha"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/response"
     "github.com/GoAdminGroup/go-admin/template"
@@ -21,15 +20,8 @@ import (
 
 // Auth check the input password and username for authentication.
 func (h *Handler) Auth(ctx *context.Context) {
-
-    var (
-        user     models.UserModel
-        ok       bool
-        errMsg   = "fail"
-        s, exist = h.services.GetOrNot(auth.ServiceKey)
-    )
-
-    if capDriver, ok := h.captchaConfig["driver"]; ok {
+    capDriver, ok := h.captchaConfig["driver"];
+    if ok {
         capt, ok := captcha.Get(capDriver)
         if ok {
             if !capt.Validate(ctx.FormValue("token")) {
@@ -39,21 +31,14 @@ func (h *Handler) Auth(ctx *context.Context) {
         }
     }
 
-    if !exist {
-        password := ctx.FormValue("password")
-        username := ctx.FormValue("username")
-
-        if password == "" || username == "" {
-            response.BadRequest(ctx, "wrong password or username")
-            return
-        }
-        user, ok, errMsg = auth.Check(password, username, h.conn)
-        errMsg += `[1]`
-    } else {
-        user, ok, errMsg = auth.GetService(s).P(ctx)
-        errMsg += `[2]`
+    password := ctx.FormValue("password")
+    username := ctx.FormValue("username")
+    if password == "" || username == "" {
+        response.BadRequest(ctx, "wrong password or username")
+        return
     }
 
+    user, ok, errMsg := auth.Check(password, username, h.conn)
     if !ok {
         response.BadRequest(ctx, errMsg)
         return

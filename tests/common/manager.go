@@ -39,7 +39,7 @@ func managerTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "password_again":  "admin",
             "roleId[]":        1,
             "permission_id[]": 1,
-            form.PreviousKey:  config.Url("/info/manager?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey:  config.Url("/info/manager?_p=1&_ps=10&_srt=id&_st=desc"),
             "id":              "1",
             form.TokenKey:     "123",
         }).Expect().Status(200).Body().Contains(errors.EditFailWrongToken)
@@ -75,7 +75,7 @@ func managerTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "avatar__delete_flag": "0",
             "roleId[]":            1,
             "permission_id[]":     1,
-            form.PreviousKey:      config.Url("/info/manager?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey:      config.Url("/info/manager?_p=1&_ps=10&_srt=id&_st=desc"),
             "id":                  "1",
             form.TokenKey:         token[1],
         }).Expect().Status(200)
@@ -105,7 +105,7 @@ func managerTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "avatar__delete_flag": "0",
             "roleId[]":            1,
             "permission_id[]":     1,
-            form.PreviousKey:      config.Url("/info/manager?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey:      config.Url("/info/manager?_p=1&_ps=10&_srt=id&_st=desc"),
             "id":                  "1",
             form.TokenKey:         token[1],
         }).Expect().Status(200)

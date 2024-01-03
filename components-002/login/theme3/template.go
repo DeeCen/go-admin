@@ -74,7 +74,7 @@ var List = map[string]string{"login": `{{define "login"}}
                                                 </div>
                                             </div>
                                             <div class="col-lg-5">
-                                                <img class="captcha" src="{% .CaptchaImgSrc %}" alt="" width="120" height="38">
+                                                <img id="captcha-img" class="captcha" src="{% .CaptchaImgSrc %}" alt="" width="120" height="38">
                                             </div>
                                         </div>
                                         <input type="hidden" value="{% .CaptchaID %}" id="captcha_id">
@@ -133,7 +133,7 @@ var List = map[string]string{"login": `{{define "login"}}
 
         {% if .CaptchaDigits %}
 
-        $("img.captcha").on("click",function(){
+        $("#captcha-img").on("click",function(){
             // location.reload();
             $.ajax({
                     dataType: 'json',
@@ -143,7 +143,7 @@ var List = map[string]string{"login": `{{define "login"}}
                     data: {},
                     success: function (data) {
                         $("#captcha_id").val(data.id);
-                        $("img.captcha").attr('src',data.img);
+                        $("#captcha-img").attr('src',data.img);
                     },
                     error: function (data) {
                         alert(data.responseJSON.msg);
@@ -174,8 +174,7 @@ var List = map[string]string{"login": `{{define "login"}}
             },
             error: function (data) {
                 alert(data.responseJSON.msg);
-                $("img.captcha").click();
-                //location.reload();
+                $("#captcha-img").click();
             }
         });
             {% end %}

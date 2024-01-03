@@ -54,7 +54,6 @@ func Init(e *engine.Engine, cfg Config) {
 
 func Get(e *engine.Engine, cfg Config) *Login {
     if cfg.CaptchaDigits != 0 && cfg.TencentWaterProofWallData.AppID == "" {
-        //captchaData.Clean()
         captcha2.Add(CaptchaDriverKeyDefault, new(DigitsCaptcha))
 
         // 设置验证码方式 & 注册验证码获取api

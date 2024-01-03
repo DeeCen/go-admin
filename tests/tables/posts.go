@@ -21,7 +21,7 @@ func GetPostsTable(ctx *context.Context) (postsTable table.Table) {
     info.AddField("AuthorID", "author_id", db.Varchar).FieldDisplay(func(value types.FieldModel) interface{} {
         return template.Default().
             Link().
-            SetURL("/admin/info/authors/detail?__goadmin_detail_pk=100").
+            SetURL("/admin/info/authors/detail?_key_detail_pk=100").
             SetContent("100").
             OpenInNewTab().
             SetTabTitle("Author Detail").

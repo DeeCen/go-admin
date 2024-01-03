@@ -5,18 +5,14 @@
 package auth
 
 import (
+    "crypto/md5"
+    "encoding/hex"
     "sync"
-
-    //"github.com/GoAdminGroup/go-admin/modules/db/dialect"
-    //"github.com/GoAdminGroup/go-admin/modules/logger"
 
     "github.com/GoAdminGroup/go-admin/context"
     "github.com/GoAdminGroup/go-admin/modules/db"
     "github.com/GoAdminGroup/go-admin/modules/service"
     "github.com/GoAdminGroup/go-admin/plugins/admin/models"
-
-    //"github.com/GoAdminGroup/go-admin/plugins/admin/modules"
-    "golang.org/x/crypto/bcrypt"
 )
 
 // Auth get the user model from Context.
@@ -26,37 +22,35 @@ func Auth(ctx *context.Context) models.UserModel {
 
 // Check the password and username and return the user model.
 func Check(password string, username string, conn db.Connection) (user models.UserModel, ok bool, errMsg string) {
-
     user = models.User().SetConn(conn).FindByUserName(username)
-
     if user.IsEmpty() {
         errMsg = `用户不存在`
         ok = false
-    } else {
-        if comparePassword(password, user.Password) {
-            ok = true
-            user = user.WithRoles().WithPermissions().WithMenus()
-            user.UpdatePwd(EncodePassword([]byte(password)))
-        } else {
-            errMsg = `密码错误`
-            ok = false
-        }
+        return
     }
+
+    if comparePassword(password, user.Password) == false {
+        errMsg = `密码错误`
+        ok = false
+        return
+    }
+
+    ok = true
+    user = user.WithRoles().WithPermissions().WithMenus()
+    // user.UpdatePwd(EncodePassword([]byte(password)))
+
     return
 }
 
-func comparePassword(comPwd, pwdHash string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(comPwd))
-    return err == nil
+func comparePassword(pwd, pwdEncode string) bool {
+    return EncodePassword([]byte(pwd)) == pwdEncode
 }
 
 // EncodePassword encode the password.
 func EncodePassword(pwd []byte) string {
-    hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
-    if err != nil {
-        return ""
-    }
-    return string(hash)
+    pwdCopy := append(pwd, []byte(`EncodePasswordSalt`)...)
+    m5 := md5.Sum(pwdCopy)
+    return hex.EncodeToString(m5[0:])
 }
 
 // SetCookie set the cookie.

@@ -160,30 +160,30 @@ func (invoker *Invoker) Middleware() context.Handler {
 // at the same time.
 func Filter(ctx *context.Context, conn db.Connection) (models.UserModel, bool, bool) {
     var (
-        ok       bool
-        user     = models.User()
-        ses, err = InitSession(ctx)
+        ok        bool
+        userEmpty = models.User()
+        ses, err  = InitSession(ctx)
     )
 
     if err != nil {
         logger.Error("Filter retrieve auth user failed:", err)
-        return user, false, false
+        return userEmpty, false, false
     }
 
     id := fmt.Sprintf(`%v`, ses.Get(`userId`))
     userId, err := strconv.Atoi(id)
     if err != nil {
         logger.Warn(`Filter auth user userId failed:`, id)
-        return user, false, false
+        return userEmpty, false, false
     }
 
-    user, ok = GetCurUserByID(int64(userId), conn)
+    userOk, ok := GetCurUserByID(int64(userId), conn)
     if !ok {
         logger.Warn("Filter auth user GetCurUserByID failed id=", userId)
-        return user, false, false
+        return userOk, false, false
     }
 
-    return user, true, CheckPermissions(user, ctx.Request.URL.String(), ctx.Method(), ctx.PostForm())
+    return userOk, true, CheckPermissions(userOk, ctx.Request.URL.Path, ctx.Method(), ctx.PostForm())
 }
 
 const defaultUserIDSesKey = "userId"

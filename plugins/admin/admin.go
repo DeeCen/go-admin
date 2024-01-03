@@ -41,9 +41,9 @@ func (admin *Admin) InitPlugin(services service.List) {
         //"permission":     st.GetPermissionTable,
         "normal_manager": st.GetNormalManagerTable,
     }
-    if c.Debug {
+    /*if c.Debug {
         genList.Add("site", st.GetSiteTable)
-    }
+    }*/
     /*if c.IsNotProductionEnvironment() {
         genList.Add("generate", st.GetGenerateForm)
     }*/

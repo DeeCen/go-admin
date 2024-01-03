@@ -107,7 +107,7 @@ func (ses *Session) StartCtx(ctx *context.Context) (ret *Session, err error) {
         return
     }
 
-    jsonByte, e := cookieDecode([]byte(cookie.Value))
+    jsonByte, e := CookieDecode([]byte(cookie.Value))
     if e != nil {
         err = fmt.Errorf(`ctx.Request.Cookie decode err: %w`, e)
         return
@@ -146,8 +146,8 @@ func cookieEncode(s []byte) []byte {
     return Base64Encode(s)
 }
 
-// cookieDecode cookie解密
-func cookieDecode(s []byte) ([]byte, error) {
+// CookieDecode cookie解密
+func CookieDecode(s []byte) ([]byte, error) {
     ret, err := Base64Decode(s)
     if err != nil {
         return nil, err

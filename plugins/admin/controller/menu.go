@@ -165,27 +165,7 @@ func (h *Handler) EditMenu(ctx *context.Context) {
     }
 
     menuModel := models.MenuWithID(param.ID).SetConn(h.conn)
-
-    // TODO: use transaction
-    deleteRolesErr := menuModel.DeleteRoles()
-    if db.CheckError(deleteRolesErr, db.DELETE) {
-        formInfo, _ := h.table("menu", ctx).GetDataWithId(parameter.BaseParam().WithPKs(param.ID))
-        h.showEditMenu(ctx, param.PluginName, formInfo, deleteRolesErr)
-        ctx.AddHeader(constant.PjaxURLHeader, h.routePath("menu")+params)
-        return
-    }
-    for _, roleID := range param.Roles {
-        _, addRoleErr := menuModel.AddRole(roleID)
-        if db.CheckError(addRoleErr, db.INSERT) {
-            formInfo, _ := h.table("menu", ctx).GetDataWithId(parameter.BaseParam().WithPKs(param.ID))
-            h.showEditMenu(ctx, param.PluginName, formInfo, addRoleErr)
-            ctx.AddHeader(constant.PjaxURLHeader, h.routePath("menu")+params)
-            return
-        }
-    }
-
     _, updateErr := menuModel.Update(param.Title, param.Icon, param.URI, param.Header, param.PluginName, param.ParentID)
-
     if db.CheckError(updateErr, db.UPDATE) {
         formInfo, _ := h.table("menu", ctx).GetDataWithId(parameter.BaseParam().WithPKs(param.ID))
         h.showEditMenu(ctx, param.PluginName, formInfo, updateErr)

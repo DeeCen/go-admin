@@ -22,8 +22,6 @@ func (g *Guard) MenuDelete(ctx *context.Context) {
         return
     }
 
-    // TODO: check the user permission
-
     ctx.SetUserValue(deleteMenuParamKey, &MenuDeleteParam{
         ID: id,
     })

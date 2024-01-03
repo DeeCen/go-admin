@@ -209,8 +209,26 @@ func (f *FormField) setOptionsFromSQL(sql *db.SQL) {
         queryRes, err := sql.All()
         if err == nil {
             for _, item := range queryRes {
+                val := ``
+                switch v := item[f.OptionTable.ValueField].(type) {
+                case []byte:
+                    val = fmt.Sprintf("%s", string(v))
+
+                case string:
+                    val = fmt.Sprintf("%s", v)
+
+                case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+                    val = fmt.Sprintf("%d", v)
+
+                case float32, float64:
+                    val = fmt.Sprintf("%f", v)
+
+                default:
+                    val = fmt.Sprintf("%v", v)
+                }
+
                 f.Options = append(f.Options, FieldOption{
-                    Value: fmt.Sprintf("%v", item[f.OptionTable.ValueField]),
+                    Value: val,
                     Text:  fmt.Sprintf("%v", item[f.OptionTable.TextField]),
                 })
             }
@@ -288,7 +306,7 @@ func (f *FormField) updateValue(id, val string, res map[string]interface{}, typ 
         } else {
             f.Value = f.ToDisplayHTML(m)
             if f.FormType.IsFile() {
-                if f.Value != template.HTML("") {
+                if f.Value != `` {
                     f.Value2 = config.GetStore().URL(string(f.Value))
                 }
             }
@@ -328,7 +346,7 @@ func (f *FormField) fillCustom(src string) string {
     return buf.String()
 }
 
-// FormPanel
+// FormPanel 表单面板
 type FormPanel struct {
     FieldList         FormFields `json:"field_list"`
     curFieldListIndex int
@@ -659,7 +677,7 @@ func (f *FormPanel) FieldOptionExt(m map[string]interface{}) *FormPanel {
 
     m = f.FieldList[f.curFieldListIndex].FormType.FixOptions(m)
     var newOptJson []byte
-    if f.FieldList[f.curFieldListIndex].OptionExt != template.JS("") {
+    if f.FieldList[f.curFieldListIndex].OptionExt != `` {
         var oldOpt map[string]interface{}
         oldStr := string(f.FieldList[f.curFieldListIndex].OptionExt)
         jsonErr := json.Unmarshal([]byte(oldStr), &oldOpt)
@@ -678,7 +696,7 @@ func (f *FormPanel) FieldOptionExt(m map[string]interface{}) *FormPanel {
     if len(newOptJson) == 0 {
         newOptJson, _ = json.Marshal(m)
     }
-    f.FieldList[f.curFieldListIndex].OptionExt = template.JS(string(newOptJson))
+    f.FieldList[f.curFieldListIndex].OptionExt = template.JS(newOptJson)
     return f
 }
 
@@ -692,21 +710,21 @@ func (f *FormPanel) FieldOptionExt2(m map[string]interface{}) *FormPanel {
 
     s, _ := json.Marshal(m)
 
-    if f.FieldList[f.curFieldListIndex].OptionExt2 != template.JS("") {
+    if f.FieldList[f.curFieldListIndex].OptionExt2 != `` {
         ss := string(f.FieldList[f.curFieldListIndex].OptionExt2)
         ss = strings.Replace(ss, "}", "", strings.Count(ss, "}"))
         ss = strings.TrimRight(ss, " ")
         ss += ","
         f.FieldList[f.curFieldListIndex].OptionExt2 = template.JS(ss) + template.JS(strings.Replace(string(s), "{", "", 1))
     } else {
-        f.FieldList[f.curFieldListIndex].OptionExt2 = template.JS(string(s))
+        f.FieldList[f.curFieldListIndex].OptionExt2 = template.JS(s)
     }
 
     return f
 }
 
 func (f *FormPanel) FieldOptionExtJS(js template.JS) *FormPanel {
-    if js != template.JS("") {
+    if js != `` {
         f.FieldList[f.curFieldListIndex].OptionExt = js
     }
     return f
@@ -1049,7 +1067,7 @@ func searchJS(ext template.JS, url string, handler Handler, delay ...int) (templ
         delayStr = strconv.Itoa(delay[0])
     }
 
-    if ext != template.JS("") {
+    if ext != `` {
         s := string(ext)
         s = strings.Replace(s, "{", "", 1)
         s = utils.ReplaceNth(s, "}", "", strings.Count(s, "}"))
@@ -1058,8 +1076,8 @@ func searchJS(ext template.JS, url string, handler Handler, delay ...int) (templ
         ext = template.JS(s)
     }
 
-    return template.JS(`{
-        `) + ext + template.JS(`
+    return `{
+        ` + ext + template.JS(`
         ajax: {
             url: "`+url+`",
             dataType: 'json',
@@ -1110,7 +1128,7 @@ func chooseJS(field, chooseField, val string, value template.HTML) template.HTML
         Field:       template.JS(field),
         ChooseField: template.JS(chooseField),
         Value:       decorateChooseValue([]string{string(value)}),
-        Val:         decorateChooseValue([]string{string(val)}),
+        Val:         decorateChooseValue([]string{val}),
     })
 }
 
@@ -1380,7 +1398,7 @@ type AjaxData struct {
 
 func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
     f.Ajax = true
-    if f.AjaxSuccessJS == template.JS("") {
+    if f.AjaxSuccessJS == `` {
         successMsg := modules.AorB(data.SuccessTitle != "", `"`+data.SuccessTitle+`"`, "data.msg")
         errorMsg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "data.msg")
         jump := modules.AorB(data.SuccessJumpURL != "", `"`+data.SuccessJumpURL+`"`, "typeof data.data=='undefined' ? '' : data.data.url")
@@ -1400,7 +1418,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
         } else {
             jumpURL = `
         if (typeof data.data!='undefined' && typeof data.data.token!='undefined' && data.data.token !== "") {
-            $("input[name='__go_admin_t_']").val(data.data.token)
+            $("input[name='_key_t_']").val(data.data.token)
         }`
         }
         f.AjaxSuccessJS = template.JS(`
@@ -1425,7 +1443,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
         });
     } else {
         if (typeof data.data!='undefined' && typeof data.data.token!='undefined' && data.data.token !== "") {
-            $("input[name='__go_admin_t_']").val(data.data.token);
+            $("input[name='_key_t_']").val(data.data.token);
         }
         swal({
             type: "error",
@@ -1438,14 +1456,14 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
     }
 `)
     }
-    if f.AjaxErrorJS == template.JS("") {
+    if f.AjaxErrorJS == `` {
         errorMsg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "data.responseJSON.msg")
         error2Msg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "'"+language.Get("error")+"'")
         wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "text:data.msg,")
         f.AjaxErrorJS = template.JS(`
     if (data.responseText !== "") {
         if (data.responseJSON.data && data.responseJSON.data.token !== "") {
-            $("input[name='__go_admin_t_']").val(data.responseJSON.data.token)
+            $("input[name='_key_t_']").val(data.responseJSON.data.token)
         }
         swal({
             type: "error",
@@ -1470,22 +1488,22 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
     return f
 }
 
-func (f *FormPanel) EnableAjax(msgs ...string) *FormPanel {
+func (f *FormPanel) EnableAjax(msgArr ...string) *FormPanel {
     var data AjaxData
-    if len(msgs) > 0 && msgs[0] != "" {
-        data.SuccessTitle = msgs[0]
+    if len(msgArr) > 0 && msgArr[0] != "" {
+        data.SuccessTitle = msgArr[0]
     }
-    if len(msgs) > 1 && msgs[1] != "" {
-        data.ErrorTitle = msgs[1]
+    if len(msgArr) > 1 && msgArr[1] != "" {
+        data.ErrorTitle = msgArr[1]
     }
-    if len(msgs) > 2 && msgs[2] != "" {
-        data.SuccessJumpURL = msgs[2]
+    if len(msgArr) > 2 && msgArr[2] != "" {
+        data.SuccessJumpURL = msgArr[2]
     }
-    if len(msgs) > 3 && msgs[3] != "" {
-        data.SuccessText = msgs[3]
+    if len(msgArr) > 3 && msgArr[3] != "" {
+        data.SuccessText = msgArr[3]
     }
-    if len(msgs) > 4 && msgs[4] != "" {
-        data.ErrorText = msgs[4]
+    if len(msgArr) > 4 && msgArr[4] != "" {
+        data.ErrorText = msgArr[4]
     }
     return f.EnableAjaxData(data)
 }

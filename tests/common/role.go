@@ -44,7 +44,7 @@ func roleTest(e *httpexpect.Expect, sesID *http.Cookie) {
         WithForm(map[string]interface{}{
             "name":           "tester",
             "slug":           "tester",
-            form.PreviousKey: config.Url("/info/roles?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/roles?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
         }).Expect().Status(200)
     res.Header("X-Pjax-Url").Contains(config.Url("/info/"))
@@ -78,7 +78,7 @@ func roleTest(e *httpexpect.Expect, sesID *http.Cookie) {
         WithForm(map[string]interface{}{
             "name":           "tester",
             "slug":           "tester",
-            form.PreviousKey: config.Url("/info/roles?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/roles?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
             "id":             "3",
         }).Expect().Status(200)
@@ -104,7 +104,7 @@ func roleTest(e *httpexpect.Expect, sesID *http.Cookie) {
         WithForm(map[string]interface{}{
             "name":           "tester2",
             "slug":           "tester2",
-            form.PreviousKey: config.Url("/info/roles?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/roles?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
         }).Expect().Status(200)
 

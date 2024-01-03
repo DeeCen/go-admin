@@ -90,7 +90,7 @@ type EditFormParam struct {
 }
 
 func (e EditFormParam) Value() form.Values {
-    if  e.MultiForm!=nil{
+    if e.MultiForm != nil {
         return e.MultiForm.Value
     }
 
@@ -131,7 +131,7 @@ func (g *Guard) EditForm(ctx *context.Context) {
     )
 
     // 修复 multiForm 为nil引发的bug
-    if multiForm==nil{
+    if multiForm == nil {
         multiForm = new(multipart.Form)
         multiForm.Value = ctx.Request.Form
     }
@@ -141,7 +141,7 @@ func (g *Guard) EditForm(ctx *context.Context) {
         values = multiForm.Value
     }
 
-    if values!=nil && len(values[panel.GetPrimaryKey().Name]) > 0 {
+    if values != nil && len(values[panel.GetPrimaryKey().Name]) > 0 {
         id = values[panel.GetPrimaryKey().Name][0]
     }
 
@@ -167,8 +167,8 @@ func isInfoURL(s string) bool {
 }
 
 func GetEditFormParam(ctx *context.Context) *EditFormParam {
-    if v,ok := ctx.UserValue[editFormParamKey];ok{
-        if ret,ok := v.(*EditFormParam);ok{
+    if v, ok := ctx.UserValue[editFormParamKey]; ok {
+        if ret, ok := v.(*EditFormParam); ok {
             return ret
         }
     }

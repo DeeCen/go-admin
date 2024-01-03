@@ -9,16 +9,15 @@ import (
     "net/http"
     "net/url"
     "strings"
-    "time"
 )
 
 const (
     CaptchaDriverKeyTencent = "tencent"
     CaptchaDriverKeyDefault = "digits"
-    CaptchaDisableDuration  = time.Minute * 2
+    //CaptchaDisableDuration  = time.Minute * 2
 )
 
-type CaptchaDataItem struct {
+/*type CaptchaDataItem struct {
     Time time.Time `json:"time"`
     Data string    `json:"data"`
     Num  int       `json:"num"`
@@ -32,7 +31,7 @@ func (c *CaptchaData) Clean() {
             delete(*c, key)
         }
     }
-}
+}*/
 
 //var captchaData = make(CaptchaData)
 

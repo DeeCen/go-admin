@@ -91,40 +91,13 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 </a>
             </li>
             {{if not .User.HideUserCenterEntrance}}
-                <li class="dropdown user user-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        {{if eq .User.Avatar ""}}
-                            <img src="{{.UrlPrefix}}/assets/dist/img/avatar04.png" class="user-image" alt="User Image">
-                        {{else}}
-                            <img src="{{.User.Avatar}}" class="user-image" alt="User Image">
-                        {{end}}
-                        <span class="hidden-xs">{{.User.Name}}</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="user-header">
-                            {{if eq .User.Avatar ""}}
-                                <img src="{{.UrlPrefix}}/assets/dist/img/avatar04.png" class="img-circle"
-                                     alt="User Image">
-                            {{else}}
-                                <img src="{{.User.Avatar}}" class="img-circle" alt="User Image">
-                            {{end}}
-                            <p>
-                                {{.User.Name}} -{{.User.LevelName}}
-                                <!--small>{{.User.CreateAt}}</small-->
-                            </p>
-                        </li>
-                        <li class="user-footer">
-                            <div class="pull-left">
-                                <a href="{{.UrlPrefix}}/info/normal_manager/edit?__goadmin_edit_pk={{.User.ID}}"
-                                   class="btn btn-default btn-flat">{{lang "setting"}}</a>
-                            </div>
-                            <div class="pull-right">
-                                <a href="{{.UrlPrefix}}/logout"
-                                   class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
+          	<li>
+                <div class="pull-left" style="margin-top:10px;">
+                    <a href="{{.UrlPrefix}}/show/normal_manager?_key_edit_pk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a></div>
+                    <div class="pull-right" style="margin-top:10px;">
+                        <a href="{{.UrlPrefix}}/logout" class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
+                    </div>
+            </li>
             {{end}}
         </ul>
     </div>
@@ -407,22 +380,52 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                     <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
                 {{end}}
             {{end}} 
-            <input type="text" id="{{.Field}}_start__goadmin" name="{{.Field}}_start__goadmin" value="{{.Value}}"
-                   class="form-control {{.Field}}_start__goadmin" placeholder="{{.Placeholder}}">
+            <input type="text" id="{{.Field}}_start_key" name="{{.Field}}_start_key" value="{{.Value}}"
+                   class="form-control {{.Field}}_start_key" placeholder="{{.Placeholder}}">
             <span class="input-group-addon" style="border-left: 0; border-right: 0;">-</span>
-            <input type="text" id="{{.Field}}_end__goadmin" name="{{.Field}}_end__goadmin" value="{{.Value2}}"
-                   class="form-control {{.Field}}_end__goadmin" placeholder="{{.Placeholder}}">
+            <input type="text" id="{{.Field}}_end_key" name="{{.Field}}_end_key" value="{{.Value2}}"
+                   class="form-control {{.Field}}_end_key" placeholder="{{.Placeholder}}">
         </div>
         <script>
+function getParam(name){
+    var localUrl = document.location.href; 
+    var idx = localUrl.indexOf(name +"=");
+    if(idx == -1){
+        return false;   
+    }   
+
+    var param = localUrl.slice(name.length + idx + 1);    
+    var idxNext = param.indexOf("&");
+    if(idxNext != -1){
+        param = param.slice(0, idxNext);
+    }
+    return decodeURIComponent(param);
+}
+
             $(function () {
-                $('input.{{.Field}}_start__goadmin').datetimepicker({{.OptionExt}});
-                $('input.{{.Field}}_end__goadmin').datetimepicker({{.OptionExt2}});
-                $('input.{{.Field}}_start__goadmin').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end__goadmin').data("DateTimePicker").minDate(e.date);
+                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
+
+				{{if eq .OptionExt2 ""}}
+				$('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
+				{{else}}
+                $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
+				{{end}}
+
+                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
+                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
                 });
-                $('input.{{.Field}}_end__goadmin').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start__goadmin').data("DateTimePicker").maxDate(e.date);
+                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
+                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
                 });
+
+				var t1 = getParam('{{.Field}}_start_key');
+				var t2 = getParam('{{.Field}}_end_key');
+				if(t1!=''){
+					$('#{{.Field}}_start_key').val(t1);
+				}
+				if(t2!=''){
+					$('#{{.Field}}_end_key').val(t2);
+				}
             });
         </script>
     {{else}}
@@ -552,25 +555,25 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
 {{end}}`, "components/form/number_range": `{{define "form_number_range"}}
     {{if .Editable}}
         <div class="input-group number-range">
-            <input style="text-align: center;" type="text" id="{{.Field}}_start__goadmin"
-                   name="{{.Field}}_start__goadmin"
-                   value="{{.Value}}" class="form-control {{.Field}}_start__goadmin"
+            <input style="text-align: center;" type="text" id="{{.Field}}_start_key"
+                   name="{{.Field}}_start_key"
+                   value="{{.Value}}" class="form-control {{.Field}}_start_key"
                    placeholder="{{.Head}}">
             <span class="input-group-addon" style="border-left: 0; border-right: 0;">-</span>
-            <input style="text-align: center;" type="text" id="{{.Field}}_end__goadmin" name="{{.Field}}_end__goadmin"
-                   value="{{.Value2}}" class="form-control {{.Field}}_end__goadmin"
+            <input style="text-align: center;" type="text" id="{{.Field}}_end_key" name="{{.Field}}_end_key"
+                   value="{{.Value2}}" class="form-control {{.Field}}_end_key"
                    placeholder="{{.Head}}">
         </div>
         <script>
             $(function () {
-                $('.{{.Field}}_start__goadmin:not(.initialized)')
+                $('.{{.Field}}_start_key:not(.initialized)')
                     .addClass('initialized')
                     .bootstrapNumber({
                         upClass: 'success',
                         downClass: 'primary',
                         center: true
                     });
-                $('.{{.Field}}_end__goadmin:not(.initialized)')
+                $('.{{.Field}}_end_key:not(.initialized)')
                     .addClass('initialized')
                     .bootstrapNumber({
                         upClass: 'success',
@@ -863,7 +866,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                     {{end}}
                 {{else if eq .Label "free"}}
                     <div class="input-group-btn">
-                        <input type="hidden" name="{{.Field}}__operator__" class="{{.Field}}-operation" value="3">
+                        <input type="hidden" name="{{.Field}}__operator" class="{{.Field}}-operation" value="3">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                 style="min-width: 32px;" aria-expanded="false">
                             {{if eq .Value2 ""}}
@@ -1419,7 +1422,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{$url := .Url}}
         <select class="input-sm grid-per-pager" name="per-page">
             {{range $key, $pageSize := .PageSizeList}}
-                <option value="{{$url}}&__pageSize={{$pageSize}}" {{index $option $pageSize}}>
+                <option value="{{$url}}&_ps={{$pageSize}}" {{index $option $pageSize}}>
                     {{$pageSize}}
                 </option>
             {{end}}
@@ -1652,7 +1655,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         {{$head.Head}}
                         {{if $head.Sortable}}
                             <a class="fa fa-fw fa-sort" id="sort-{{$head.Field}}"
-                               href="?__sort={{$head.Field}}&__sort_type=desc{{$.SortUrl}}"></a>
+                               href="?_srt={{$head.Field}}&_st=desc{{$.SortUrl}}"></a>
                         {{end}}
                         </th>
                     {{end}}
@@ -1727,15 +1730,15 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         <td style="text-align: center;">
                             {{if not $ActionFold}}
                                 {{if $EditUrl}}
-                                    <a href='{{$EditUrl}}&__goadmin_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "__goadmin_edit_params").Content}}'><i
+                                    <a href='{{$EditUrl}}&_key_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
                                                 class="fa fa-edit" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DeleteUrl}}
-                                    <a href="javascript:void(0);" data-id='{{(index $info $PrimaryKey).Content}}' data-param='{{(index $info "__goadmin_delete_params").Content}}'
+                                    <a href="javascript:void(0);" data-id='{{(index $info $PrimaryKey).Content}}' data-param='{{(index $info "_key_delete_params").Content}}'
                                        class="grid-row-delete"><i class="fa fa-trash" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DetailUrl}}
-                                    <a href='{{$DetailUrl}}&__goadmin_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "__goadmin_detail_params").Content}}'
+                                    <a href='{{$DetailUrl}}&_key_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
                                        class="grid-row-view">
                                         <i class="fa fa-eye" style="font-size: 16px;"></i>
                                     </a>
@@ -1782,7 +1785,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             };
 
             const pjaxContainer = "#pjax-container";
-            const noAnimation = "__go_admin_no_animation_";
+            const noAnimation = "_key_no_animation_";
 
             function iCheck(el) {
                 el.iCheck({checkboxClass: 'icheckbox_minimal-blue'}).on('ifChanged', function () {
@@ -1806,7 +1809,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 let items = $('.column-select-item');
                 iCheck(items);
                 iCheck($('.grid-row-checkbox'));
-                let columns = getQueryVariable("__columns");
+                let columns = getQueryVariable("_cols");
                 if (columns === -1) {
                     items.iCheck('check');
                 } else {
@@ -1856,15 +1859,15 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
 
                 // Initialize sort parameters
 
-                let sort = getQueryVariable("__sort");
-                let sort_type = getQueryVariable("__sort_type");
+                let sort = getQueryVariable("_srt");
+                let sort_type = getQueryVariable("_st");
 
                 if (sort !== -1 && sort_type !== -1) {
                     let sortFa = $('#sort-' + sort);
                     if (sort_type === 'asc') {
-                        sortFa.attr('href', '?__sort=' + sort + "&__sort_type=desc" + decodeURIComponent("{{.SortUrl}}"))
+                        sortFa.attr('href', '?_srt=' + sort + "&_st=desc" + decodeURIComponent("{{.SortUrl}}"))
                     } else {
-                        sortFa.attr('href', '?__sort=' + sort + "&__sort_type=asc" + decodeURIComponent("{{.SortUrl}}"))
+                        sortFa.attr('href', '?_srt=' + sort + "&_st=asc" + decodeURIComponent("{{.SortUrl}}"))
                     }
                     sortFa.removeClass('fa-sort');
                     sortFa.addClass('fa-sort-amount-' + sort_type);
@@ -1896,7 +1899,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             $('.column-select-submit').on('click', function () {
 
                 let param = new Map();
-                param.set('__columns', selectedAllFieldsRows().join(','));
+                param.set('_cols', selectedAllFieldsRows().join(','));
                 param.set(noAnimation, 'true');
 
                 $.pjax({
@@ -2936,7 +2939,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 <div class="user-panel">
                     <div class="pull-left image">
                         {{if eq .User.Avatar ""}}
-                            <img src="{{.UrlPrefix}}/assets/dist/img/avatar04.png" class="img-circle" alt="User Image">
+                            <img src="/uploads/avatar.jpg" class="img-circle" alt="User Image">
                         {{else}}
                             <img src="{{.User.Avatar}}" class="img-circle" alt="User Image">
                         {{end}}

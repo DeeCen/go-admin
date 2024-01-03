@@ -39,7 +39,7 @@
                         {{$head.Head}}
                         {{if $head.Sortable}}
                             <a class="fa fa-fw fa-sort" id="sort-{{$head.Field}}"
-                               href="?__sort={{$head.Field}}&__sort_type=desc{{$.SortUrl}}"></a>
+                               href="?_srt={{$head.Field}}&_st=desc{{$.SortUrl}}"></a>
                         {{end}}
                         </th>
                     {{end}}
@@ -114,15 +114,15 @@
                         <td style="text-align: center;">
                             {{if not $ActionFold}}
                                 {{if $EditUrl}}
-                                    <a href='{{$EditUrl}}&__goadmin_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "__goadmin_edit_params").Content}}'><i
+                                    <a href='{{$EditUrl}}&_key_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
                                                 class="fa fa-edit" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DeleteUrl}}
-                                    <a href="javascript:void(0);" data-id='{{(index $info $PrimaryKey).Content}}' data-param='{{(index $info "__goadmin_delete_params").Content}}'
+                                    <a href="javascript:void(0);" data-id='{{(index $info $PrimaryKey).Content}}' data-param='{{(index $info "_key_delete_params").Content}}'
                                        class="grid-row-delete"><i class="fa fa-trash" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DetailUrl}}
-                                    <a href='{{$DetailUrl}}&__goadmin_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "__goadmin_detail_params").Content}}'
+                                    <a href='{{$DetailUrl}}&_key_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
                                        class="grid-row-view">
                                         <i class="fa fa-eye" style="font-size: 16px;"></i>
                                     </a>
@@ -169,7 +169,7 @@
             };
 
             const pjaxContainer = "#pjax-container";
-            const noAnimation = "__go_admin_no_animation_";
+            const noAnimation = "_key_no_animation_";
 
             function iCheck(el) {
                 el.iCheck({checkboxClass: 'icheckbox_minimal-blue'}).on('ifChanged', function () {
@@ -193,7 +193,7 @@
                 let items = $('.column-select-item');
                 iCheck(items);
                 iCheck($('.grid-row-checkbox'));
-                let columns = getQueryVariable("__columns");
+                let columns = getQueryVariable("_cols");
                 if (columns === -1) {
                     items.iCheck('check');
                 } else {
@@ -243,15 +243,15 @@
 
                 // Initialize sort parameters
 
-                let sort = getQueryVariable("__sort");
-                let sort_type = getQueryVariable("__sort_type");
+                let sort = getQueryVariable("_srt");
+                let sort_type = getQueryVariable("_st");
 
                 if (sort !== -1 && sort_type !== -1) {
                     let sortFa = $('#sort-' + sort);
                     if (sort_type === 'asc') {
-                        sortFa.attr('href', '?__sort=' + sort + "&__sort_type=desc" + decodeURIComponent("{{.SortUrl}}"))
+                        sortFa.attr('href', '?_srt=' + sort + "&_st=desc" + decodeURIComponent("{{.SortUrl}}"))
                     } else {
-                        sortFa.attr('href', '?__sort=' + sort + "&__sort_type=asc" + decodeURIComponent("{{.SortUrl}}"))
+                        sortFa.attr('href', '?_srt=' + sort + "&_st=asc" + decodeURIComponent("{{.SortUrl}}"))
                     }
                     sortFa.removeClass('fa-sort');
                     sortFa.addClass('fa-sort-amount-' + sort_type);
@@ -283,7 +283,7 @@
             $('.column-select-submit').on('click', function () {
 
                 let param = new Map();
-                param.set('__columns', selectedAllFieldsRows().join(','));
+                param.set('_cols', selectedAllFieldsRows().join(','));
                 param.set(noAnimation, 'true');
 
                 $.pjax({

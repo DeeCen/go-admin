@@ -17,13 +17,13 @@ type UpdateParam struct {
 func (g *Guard) Update(ctx *context.Context) {
     panel, prefix := g.table(ctx)
 
-    pname := panel.GetPrimaryKey().Name
+    pName := panel.GetPrimaryKey().Name
 
     id := ctx.FormValue("pk")
 
     if id == "" {
         ctx.JSON(http.StatusBadRequest, map[string]interface{}{
-            "msg": "wrong " + pname,
+            "msg": "wrong " + pName,
         })
         ctx.Abort()
         return
@@ -31,7 +31,7 @@ func (g *Guard) Update(ctx *context.Context) {
 
     var f = make(form.Values)
     f.Add(form.PostIsSingleUpdateKey, "1")
-    f.Add(pname, id)
+    f.Add(pName, id)
     f.Add(ctx.FormValue("name"), ctx.FormValue("value"))
 
     ctx.SetUserValue(updateParamKey, &UpdateParam{

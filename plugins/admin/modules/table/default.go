@@ -267,9 +267,9 @@ func (tb *DefaultTable) GetDataWithIds(params parameter.Parameters) (PanelInfo, 
 func (tb *DefaultTable) getTempModelData(res map[string]interface{}, params parameter.Parameters, columns Columns) map[string]types.InfoItem {
 
     var tempModelData = map[string]types.InfoItem{
-        "__goadmin_edit_params":   {},
-        "__goadmin_delete_params": {},
-        "__goadmin_detail_params": {},
+        "_key_edit_params":   {},
+        "_key_delete_params": {},
+        "_key_detail_params": {},
     }
     headField := ""
     editParams := ""
@@ -338,24 +338,24 @@ func (tb *DefaultTable) getTempModelData(res map[string]interface{}, params para
         }
 
         if field.IsEditParam {
-            editParams += "__goadmin_edit_" + field.Field + "=" + valueStr + "&"
+            editParams += "_key_edit_" + field.Field + "=" + valueStr + "&"
         }
         if field.IsDeleteParam {
-            deleteParams += "__goadmin_delete_" + field.Field + "=" + valueStr + "&"
+            deleteParams += "_key_delete_" + field.Field + "=" + valueStr + "&"
         }
         if field.IsDetailParam {
-            detailParams += "__goadmin_detail_" + field.Field + "=" + valueStr + "&"
+            detailParams += "_key_detail_" + field.Field + "=" + valueStr + "&"
         }
     }
 
     if editParams != "" {
-        tempModelData["__goadmin_edit_params"] = types.InfoItem{Content: template.HTML("&" + editParams[:len(editParams)-1])}
+        tempModelData["_key_edit_params"] = types.InfoItem{Content: template.HTML("&" + editParams[:len(editParams)-1])}
     }
     if deleteParams != "" {
-        tempModelData["__goadmin_delete_params"] = types.InfoItem{Content: template.HTML("&" + deleteParams[:len(deleteParams)-1])}
+        tempModelData["_key_delete_params"] = types.InfoItem{Content: template.HTML("&" + deleteParams[:len(deleteParams)-1])}
     }
     if detailParams != "" {
-        tempModelData["__goadmin_detail_params"] = types.InfoItem{Content: template.HTML("&" + detailParams[:len(detailParams)-1])}
+        tempModelData["_key_detail_params"] = types.InfoItem{Content: template.HTML("&" + detailParams[:len(detailParams)-1])}
     }
 
     primaryKeyField := tb.Info.FieldList.GetFieldByFieldName(tb.PrimaryKey.Name)
@@ -646,6 +646,10 @@ func (tb *DefaultTable) GetDataWithId(param parameter.Parameters) (FormInfo, err
         id      = param.PK()
     )
 
+    if id == `` || id == `0` || strings.HasPrefix(id, `-`) {
+        return FormInfo{Title: tb.Form.Title, Description: tb.Form.Description}, errors.New(errs.PermissionDenied)
+    }
+
     if tb.getDataFun != nil {
         res = getDataRes(tb.getDataFun(param))
     } else if tb.sourceURL != "" {
@@ -733,7 +737,7 @@ func (tb *DefaultTable) GetDataWithId(param parameter.Parameters) (FormInfo, err
         }
 
         if len(result) == 0 {
-            return FormInfo{Title: tb.Form.Title, Description: tb.Form.Description}, errors.New(errs.WrongID)
+            return FormInfo{Title: tb.Form.Title, Description: tb.Form.Description}, errors.New(errs.PermissionDenied)
         }
 
         res = result[0]
@@ -768,7 +772,7 @@ func (tb *DefaultTable) GetDataWithId(param parameter.Parameters) (FormInfo, err
 
 // UpdateDate update data.
 func (tb *DefaultTable) UpdateDate(dataList form.Values) error {
-    if dataList==nil{
+    if dataList == nil {
         return errors.New(`UpdateDate value==nil`)
     }
 

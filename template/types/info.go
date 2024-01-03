@@ -434,6 +434,7 @@ func (f FieldList) GetFieldFilterProcessValue(key, value, keyIndex string) strin
             value = field.FilterFormFields[index].ProcessFn(value)
         }
     }
+
     return value
 }
 
@@ -819,7 +820,7 @@ func (def *DefaultAction) GetCallbacks() context.Node   { return context.Node{} 
 
 var _ Action = (*DefaultAction)(nil)
 
-var DefaultPageSizeList = []int{10, 20, 30, 50, 100}
+var DefaultPageSizeList = []int{10, 20, 50}
 
 const DefaultPageSize = 10
 
@@ -1146,7 +1147,7 @@ func (i *InfoPanel) FieldFileSize() *InfoPanel {
 
 func (i *InfoPanel) FieldDate(format string) *InfoPanel {
     i.addDisplayChains(displayFnGens["date"].Get(format))
-	return i
+    return i
 }
 
 func (i *InfoPanel) FieldIcon(icons map[string]string, defaultIcon string) *InfoPanel {

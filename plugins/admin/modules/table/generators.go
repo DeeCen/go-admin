@@ -11,11 +11,8 @@ import (
     "strings"
     "time"
 
-    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
-
-    "github.com/GoAdminGroup/go-admin/modules/auth"
-
     "github.com/GoAdminGroup/go-admin/context"
+    "github.com/GoAdminGroup/go-admin/modules/auth"
     "github.com/GoAdminGroup/go-admin/modules/collection"
     "github.com/GoAdminGroup/go-admin/modules/config"
     "github.com/GoAdminGroup/go-admin/modules/db"
@@ -25,6 +22,7 @@ import (
     "github.com/GoAdminGroup/go-admin/modules/ui"
     "github.com/GoAdminGroup/go-admin/modules/utils"
     "github.com/GoAdminGroup/go-admin/plugins/admin/models"
+    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
     form2 "github.com/GoAdminGroup/go-admin/plugins/admin/modules/form"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/parameter"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/tools"
@@ -33,7 +31,6 @@ import (
     "github.com/GoAdminGroup/go-admin/template/types/form"
     selection "github.com/GoAdminGroup/go-admin/template/types/form/select"
     "github.com/GoAdminGroup/html"
-    "golang.org/x/crypto/bcrypt"
 )
 
 type SystemTable struct {
@@ -48,15 +45,23 @@ func NewSystemTable(conn db.Connection, c *config.Config) *SystemTable {
 func (s *SystemTable) GetManagerTable(_ *context.Context) (managerTable Table) {
     managerTable = NewDefaultTable(DefaultConfigWithDriver(config.GetDatabases().GetDefault().Driver))
 
-    info := managerTable.GetInfo().AddXssJsFilter().HideFilterArea()
+    info := managerTable.GetInfo().AddXssJsFilter()
+    info.SetFilterFormLayout(form.LayoutTwoCol)
 
     info.AddField("Id", "id", db.Int).FieldSortable()
-    info.AddField(lg("name"), "username", db.Varchar).FieldFilterable()
-    info.AddField(lg("nickname"), "name", db.Varchar).FieldFilterable()
+    info.AddField(lg("name"), "username", db.Varchar).FieldFilterable(types.FilterType{Operator: types.FilterOperatorLike})
+    info.AddField(lg("nickname"), "name", db.Varchar).FieldFilterable(types.FilterType{Operator: types.FilterOperatorLike})
     info.AddField(lg("role"), "role", db.Varchar).
         FieldDisplay(func(model types.FieldModel) interface{} {
-            return `-`
-        }).FieldFilterable()
+            var roleName []string
+            roleModel, _ := s.table("goadmin_role").Select("name").
+                WhereRaw("id IN(SELECT roleId FROM goadmin_role_user where userId=?)", model.Row[`id`]).All()
+            for _, v := range roleModel {
+                roleName = append(roleName, fmt.Sprintf(`%s`, v["name"]))
+            }
+            return strings.Join(roleName, `; `)
+
+        })
     info.AddField(lg("createAt"), "createAt", db.Int).FieldDisplay(func(value types.FieldModel) interface{} {
         return toYmdHis(value.Value)
     })
@@ -98,7 +103,7 @@ func (s *SystemTable) GetManagerTable(_ *context.Context) (managerTable Table) {
         FieldHelpMsg(template.HTML(lg("use for login"))).FieldMust()
     formList.AddField(lg("nickname"), "name", db.Varchar, form.Text).
         FieldHelpMsg(template.HTML(lg("use to display"))).FieldMust()
-    formList.AddField(lg("role"), "roleId", db.Varchar, form.SelectBox).
+    formList.AddField(lg("role"), "roleId", db.Varchar, form.Select).
         FieldMust().
         FieldOptionsFromTable("goadmin_role", "name", "id").
         FieldDisplay(func(model types.FieldModel) interface{} {
@@ -114,7 +119,7 @@ func (s *SystemTable) GetManagerTable(_ *context.Context) (managerTable Table) {
             }
             return roles
         }).FieldHelpMsg(template.HTML(lg("no corresponding options?")) +
-        link(config.Url(`/info/roles/new`), "Create here."))
+        link(config.Url(`/new/role`), "Create here."))
     formList.AddField(lg("avatar"), "avatar", db.Varchar, form.File)
     formList.AddField(lg("password"), "password", db.Varchar, form.Password).
         FieldDisplay(func(value types.FieldModel) interface{} {
@@ -275,8 +280,9 @@ func (s *SystemTable) GetRoleTable(_ *context.Context) (roleTable Table) {
         FieldMust().
         FieldHelpMsg(template.HTML(lg("should be unique")))
     //formList.AddField(lg("slug"), "slug", db.Varchar, form.Text).FieldHelpMsg(template.HTML(lg("should be unique"))).FieldMust()
+
     formList.AddField(lg("permission"), "menu_id", db.Varchar, form.SelectBox).
-        FieldOptionsFromTable("goadmin_menu", "title", "id").
+        FieldOptions(getMenuOptions(s)).
         FieldDisplay(func(model types.FieldModel) interface{} {
             var permissions = make([]string, 0)
 
@@ -292,7 +298,7 @@ func (s *SystemTable) GetRoleTable(_ *context.Context) (roleTable Table) {
             }
             return permissions
         }).FieldHelpMsg(template.HTML(lg("no corresponding options?")) +
-        link(config.Url(`/info/menu`), "Create here."))
+        link(config.Url(`/new/menu`), "Create here."))
 
     formList.AddField(lg("updateAt"), "updateAt", db.Int, form.Default).
         FieldDisableWhenCreate().
@@ -529,6 +535,9 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
         ctx.Abort()
     }
 
+    // 回跳地址的bug,直跳回调回去首页
+    ctx.Request.Form.Set(form2.PreviousKey, config.Prefix())
+
     managerTable = NewDefaultTable(DefaultConfigWithDriver(config.GetDatabases().GetDefault().Driver))
 
     info := managerTable.GetInfo().AddXssJsFilter().HideFilterArea()
@@ -538,15 +547,18 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
     info.HideCheckBoxColumn()
     info.HideEditButton()
     info.HideDetailButton()
-    info.Where(`id`, `=`, loginUserID)
-
-    info.AddField("Id", "id", db.Int).FieldSortable()
-    info.AddField(lg("name"), "username", db.Varchar).FieldFilterable()
-    info.AddField(lg("nickname"), "name", db.Varchar).FieldFilterable()
-    info.AddField(lg("createAt"), "createAt", db.Int).FieldDisplay(func(value types.FieldModel) interface{} {
-        ts, _ := strconv.Atoi(value.Value)
-        return time.Unix(int64(ts), 0).Format(`2006-01-02 15:04:05`)
+    info.Where(`id`, `=`, 0)
+    info.SetExportProcessFn(func(_ parameter.Parameters) (types.PanelInfo, error) {
+        return types.PanelInfo{}, nil
     })
+
+    /*info.AddField("Id", "id", db.Int).FieldSortable()
+      info.AddField(lg("name"), "username", db.Varchar).FieldFilterable()
+      info.AddField(lg("nickname"), "name", db.Varchar).FieldFilterable()
+      info.AddField(lg("createAt"), "createAt", db.Int).FieldDisplay(func(value types.FieldModel) interface{} {
+          ts, _ := strconv.Atoi(value.Value)
+          return time.Unix(int64(ts), 0).Format(`2006-01-02 15:04:05`)
+      })*/
 
     info.SetTable("goadmin_user").
         SetTitle(lg("managers")).
@@ -560,10 +572,11 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
     formList.HideContinueEditCheckBox()
     formList.HideContinueNewCheckBox()
     formList.HideBackButton()
+    formList.EnableAjax(``, ``, config.Prefix(), `修改成功`, `修改失败`)
 
-    formList.AddField("Id", "id", db.Int, form.Default).FieldDisplayButCanNotEditWhenUpdate().FieldDisableWhenCreate()
+    //formList.AddField("Id", "id", db.Int, form.Default).FieldDisplayButCanNotEditWhenUpdate().FieldDisableWhenCreate()
     formList.AddField(lg("name"), "username", db.Varchar, form.Text).FieldHelpMsg(template.HTML(lg("use for login"))).FieldMust()
-    formList.AddField(lg("nickname"), "name", db.Varchar, form.Text).FieldHelpMsg(template.HTML(lg("use to display"))).FieldMust()
+    formList.AddField(lg("nickname"), "name", db.Varchar, form.Text).FieldMust()
     formList.AddField(lg("avatar"), "avatar", db.Varchar, form.File)
     formList.AddField(lg("password"), "password", db.Varchar, form.Password).
         FieldDisplay(func(value types.FieldModel) interface{} {
@@ -580,7 +593,6 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
             return errors.New("username and password can not be empty")
         }
 
-        //user := models.UserWithId(values.Get("id")).SetConn(s.conn)
         user := models.UserWithId(fmt.Sprintf(`%d`, loginUserID)).SetConn(s.conn)
         if values.Has("permission", "role") {
             return errors.New(errs.NoPermission)
@@ -609,31 +621,6 @@ func (s *SystemTable) GetNormalManagerTable(ctx *context.Context) (managerTable 
     })
     formList.SetInsertFn(func(values form2.Values) error {
         return errors.New(`禁止添加操作`)
-
-        /*if values.IsEmpty("name", "username", "password") {
-              return errors.New("username and password can not be empty")
-          }
-
-          password := values.Get("password")
-
-          if password != values.Get("password_again") {
-              return errors.New("password does not match")
-          }
-
-          if values.Has("permission", "role") {
-              return errors.New(errs.NoPermission)
-          }
-
-          _, createUserErr := models.User().SetConn(s.conn).New(values.Get("username"),
-              encodePassword([]byte(values.Get("password"))),
-              values.Get("name"),
-              values.Get("avatar"))
-
-          if db.CheckError(createUserErr, db.INSERT) {
-              return createUserErr
-          }
-
-          return nil*/
     })
 
     return
@@ -1445,16 +1432,15 @@ func (s *SystemTable) GetGenerateForm(_ *context.Context) (generateTool Table) {
 // -------------------------
 
 func encodePassword(pwd []byte) string {
-    hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
-    if err != nil {
-        return ""
-    }
-    return string(hash)
+    /* pwdCopy := append(pwd, []byte(`EncodePasswordSalt`)...)
+       m5 := md5.Sum(pwdCopy)
+       return hex.EncodeToString(m5[0:])*/
+    return auth.EncodePassword(pwd)
 }
 
-func label() types.LabelAttribute {
+/*func label() types.LabelAttribute {
     return template.Get(config.GetTheme()).Label().SetType("success")
-}
+}*/
 
 func lg(v string) string {
     return language.Get(v)
@@ -1599,4 +1585,15 @@ func getType(typeName string) string {
     typeName = r.ReplaceAllString(typeName, "")
     r2, _ := regexp.Compile(`unsigned(.*)`)
     return strings.TrimSpace(strings.ToTitle(strings.ToLower(r2.ReplaceAllString(typeName, ""))))
+}
+
+func getMenuOptions(s *SystemTable) (ret types.FieldOptions) {
+    menuAll, _ := s.table(`goadmin_menu`).
+        Select("id", `title`).
+        Where("uri", "!=", ``).
+        All()
+    for _, v := range menuAll {
+        ret = append(ret, types.FieldOption{Text: fmt.Sprintf(`%s`, v[`title`]), Value: fmt.Sprintf(`%d`, v[`id`])})
+    }
+    return
 }

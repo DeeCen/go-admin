@@ -5,15 +5,15 @@ import (
 )
 
 const (
-    PostTypeKey           = "__go_admin_post_type"
-    PostResultKey         = "__go_admin_post_result"
-    PostIsSingleUpdateKey = "__go_admin_is_single_update"
+    PostTypeKey           = "_key_post_type"
+    PostResultKey         = "_key_post_result"
+    PostIsSingleUpdateKey = "_key_is_single_update"
 
-    PreviousKey = "__go_admin_previous_"
-    TokenKey    = "__go_admin_t_"
-    MethodKey   = "__go_admin_method_"
+    PreviousKey = "_key_previous_"
+    TokenKey    = "_key_t_"
+    MethodKey   = "_key_method_"
 
-    NoAnimationKey = "__go_admin_no_animation_"
+    NoAnimationKey = "_key_no_animation_"
 )
 
 // Values maps a string key to a list of values.

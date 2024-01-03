@@ -46,7 +46,7 @@ func permissionTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "slug": "tester",
             "http_path": `/
 /admin/info/op`,
-            form.PreviousKey: config.Url("/info/permission?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/permission?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
         }).Expect().Status(200)
     res.Header("X-Pjax-Url").Contains(config.Url("/info/"))
@@ -82,7 +82,7 @@ func permissionTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "slug": "tester",
             "http_path": `/
 /admin/info/op`,
-            form.PreviousKey: config.Url("/info/permission?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/permission?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
             "id":             "3",
         }).Expect().Status(200)
@@ -110,7 +110,7 @@ func permissionTest(e *httpexpect.Expect, sesID *http.Cookie) {
             "slug": "tester2",
             "http_path": `/
 /admin/info/op`,
-            form.PreviousKey: config.Url("/info/permission?__page=1&__pageSize=10&__sort=id&__sort_type=desc"),
+            form.PreviousKey: config.Url("/info/permission?_p=1&_ps=10&_srt=id&_st=desc"),
             form.TokenKey:    token[1],
         }).Expect().Status(200)
 

@@ -118,8 +118,13 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
             template.ExecuteOptions{Animation: params.Animation})
     }
 
-    editUrl, newUrl, deleteUrl, exportUrl, detailUrl, infoUrl,
-        updateUrl := urls[0], urls[1], urls[2], urls[3], urls[4], urls[5], urls[6]
+    editUrl := urls[0]
+    newUrl := urls[1]
+    deleteUrl := urls[2]
+    exportUrl := urls[3]
+    //detailUrl:= urls[4]
+    infoUrl := urls[5]
+    updateUrl := urls[6]
 
     var (
         actionJs  template2.JS
@@ -139,23 +144,23 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
             if deleteUrl != "" {
                 //ext = html.LiEl().SetClass("divider").Get()
                 allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("delete"),
-                    types.NewDefaultAction(`data-id='{{.ID}}' data-param='{{(index .Value "__goadmin_delete_params").Content}}' style="cursor: pointer;"`,
+                    types.NewDefaultAction(`data-id='{{.ID}}' data-param='{{(index .Value "_key_delete_params").Content}}' style="cursor: pointer;"`,
                         ext, "", ""), "grid-row-delete")}, allActionBtns...)
             }
             ext = template2.HTML("")
-            if detailUrl != "" {
-                /*if editUrl == "" && deleteUrl == "" {
-                    ext = html.LiEl().SetClass("divider").Get()
-                }*/
+            /*if detailUrl != "" {
+                //if editUrl == "" && deleteUrl == "" {
+                //    ext = html.LiEl().SetClass("divider").Get()
+                //}
                 allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("detail"),
-                    action.Jump(detailUrl+"&"+constant.DetailPKKey+`={{.ID}}{{(index .Value "__goadmin_detail_params").Content}}`, ext))}, allActionBtns...)
-            }
+                    action.Jump(detailUrl+"&"+constant.DetailPKKey+`={{.ID}}{{(index .Value "_key_detail_params").Content}}`, ext))}, allActionBtns...)
+            }*/
             if editUrl != "" {
                 /*if detailUrl == "" && deleteUrl == "" {
                     ext = html.LiEl().SetClass("divider").Get()
                 }*/
                 allActionBtns = append([]types.Button{types.GetActionButton(language.GetFromHtml("edit"),
-                    action.Jump(editUrl+"&"+constant.EditPKKey+`={{.ID}}{{(index .Value "__goadmin_edit_params").Content}}`, ext))}, allActionBtns...)
+                    action.Jump(editUrl+"&"+constant.EditPKKey+`={{.ID}}{{(index .Value "_key_edit_params").Content}}`, ext))}, allActionBtns...)
             }
 
             var content template2.HTML
@@ -214,7 +219,7 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
                     SetSortUrl(params.GetFixedParamStrWithoutSort()).
                     SetEditUrl(editUrl).
                     SetUpdateUrl(updateUrl).
-                    SetDetailUrl(detailUrl).
+                    //SetDetailUrl(detailUrl).
                     SetDeleteUrl(deleteUrl).
                     GetContent(),
             }
@@ -239,7 +244,7 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
             SetEditUrl(editUrl).
             SetSortUrl(params.GetFixedParamStrWithoutSort()).
             SetUpdateUrl(updateUrl).
-            SetDetailUrl(detailUrl).
+            //SetDetailUrl(detailUrl).
             SetDeleteUrl(deleteUrl)
         body = dataTable.GetContent()
     }

@@ -8,21 +8,26 @@
                     <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
                 {{end}}
             {{end}} 
-            <input type="text" id="{{.Field}}_start__goadmin" name="{{.Field}}_start__goadmin" value="{{.Value}}"
-                   class="form-control {{.Field}}_start__goadmin" placeholder="{{.Placeholder}}">
+            <input type="text" id="{{.Field}}_start_key" name="{{.Field}}_start_key" value="{{.Value}}"
+                   class="form-control {{.Field}}_start_key" placeholder="{{.Placeholder}}">
             <span class="input-group-addon" style="border-left: 0; border-right: 0;">-</span>
-            <input type="text" id="{{.Field}}_end__goadmin" name="{{.Field}}_end__goadmin" value="{{.Value2}}"
-                   class="form-control {{.Field}}_end__goadmin" placeholder="{{.Placeholder}}">
+            <input type="text" id="{{.Field}}_end_key" name="{{.Field}}_end_key" value="{{.Value2}}"
+                   class="form-control {{.Field}}_end_key" placeholder="{{.Placeholder}}">
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}_start__goadmin').datetimepicker({{.OptionExt}});
-                $('input.{{.Field}}_end__goadmin').datetimepicker({{.OptionExt2}});
-                $('input.{{.Field}}_start__goadmin').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end__goadmin').data("DateTimePicker").minDate(e.date);
+                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
+                {{if eq .OptionExt2 ""}}
+                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
+                {{else}}
+                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
+                {{end}}
+
+                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
+                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
                 });
-                $('input.{{.Field}}_end__goadmin').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start__goadmin').data("DateTimePicker").maxDate(e.date);
+                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
+                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
                 });
             });
         </script>

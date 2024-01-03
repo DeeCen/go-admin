@@ -58,7 +58,11 @@ type Router struct {
 }
 
 func (r Router) Method() string {
-    return r.Methods[0]
+    if len( r.Methods)>0{
+        return r.Methods[0]
+    }
+
+    return  ``
 }
 
 func (r Router) GetURL(value ...string) string {

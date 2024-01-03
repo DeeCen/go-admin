@@ -20,8 +20,8 @@ func (admin *Admin) initRouter() *Admin {
     route.POST("/signin", admin.handler.Auth)
 
     // auto install
-    route.GET("/install", admin.handler.ShowInstall)
-    route.POST("/install/database/check", admin.handler.CheckDatabase)
+    //route.GET("/install", admin.handler.ShowInstall)
+    //route.POST("/install/database/check", admin.handler.CheckDatabase)
 
     checkRepeatedPath := make([]string, 0)
     for _, themeName := range template.Themes() {
@@ -49,37 +49,37 @@ func (admin *Admin) initRouter() *Admin {
     authRoute.POST("/menu/order", admin.handler.MenuOrder).Name("menu_order")
     authRoute.GET("/menu", admin.handler.ShowMenu).Name("menu")
     authRoute.GET("/menu/edit/show", admin.handler.ShowEditMenu).Name("menu_edit_show")
-    authRoute.GET("/menu/new", admin.handler.ShowNewMenu).Name("menu_new_show")
+    //authRoute.GET("/menu/new", admin.handler.ShowNewMenu).Name("menu_new_show")
 
     //authRoute.GET("/plugins", admin.handler.Plugins).Name("plugins")
 
-    if config.IsNotProductionEnvironment() {
-        authRoute.GET("/plugins/store", admin.handler.PluginStore).Name("plugins_store")
-        authRoute.POST("/plugin/download", admin.handler.PluginDownload).Name("plugin_download")
-        authRoute.POST("/plugin/detail", admin.handler.PluginDetail).Name("plugin_detail")
-    }
+    //if config.IsNotProductionEnvironment() {
+    //    authRoute.GET("/plugins/store", admin.handler.PluginStore).Name("plugins_store")
+    //    authRoute.POST("/plugin/download", admin.handler.PluginDownload).Name("plugin_download")
+    //    authRoute.POST("/plugin/detail", admin.handler.PluginDetail).Name("plugin_detail")
+    //}
 
-    authRoute.POST("/server/login", admin.guardian.ServerLogin, admin.handler.ServerLogin).Name("server_login")
+    // authRoute.POST("/server/login", admin.guardian.ServerLogin, admin.handler.ServerLogin).Name("server_login")
 
     formats := config.GetURLFormats()
 
     // add delete modify query
     authPrefixRoute := route.Group("/", auth.Middleware(admin.Conn), admin.guardian.CheckPrefix)
-    authPrefixRoute.GET(formats.Detail, admin.handler.ShowDetail).Name("detail")
+    //authPrefixRoute.GET(formats.Detail, admin.handler.ShowDetail).Name("detail") // 详情功能
+    authPrefixRoute.GET(formats.Info, admin.handler.ShowInfo).Name("info")
     authPrefixRoute.GET(formats.ShowEdit, admin.guardian.ShowForm, admin.handler.ShowForm).Name("show_edit")
     authPrefixRoute.GET(formats.ShowCreate, admin.guardian.ShowNewForm, admin.handler.ShowNewForm).Name("show_new")
-    authPrefixRoute.GET(formats.Info, admin.handler.ShowInfo).Name("info")
     authPrefixRoute.POST(formats.Edit, admin.guardian.EditForm, admin.handler.EditForm).Name("edit")
     authPrefixRoute.POST(formats.Create, admin.guardian.NewForm, admin.handler.NewForm).Name("new")
     authPrefixRoute.POST(formats.Delete, admin.guardian.Delete, admin.handler.Delete).Name("delete")
     authPrefixRoute.POST(formats.Export, admin.guardian.Export, admin.handler.Export).Name("export")
-    authPrefixRoute.POST(formats.Update, admin.guardian.Update, admin.handler.Update).Name("update")
+    //authPrefixRoute.POST(formats.Update, admin.guardian.Update, admin.handler.Update).Name("update") // 列表编辑功能
 
-    authRoute.GET("/application/info", admin.handler.SystemInfo)
+    //authRoute.GET("/application/info", admin.handler.SystemInfo)
 
-    route.ANY("/operation/:__goadmin_op_id", auth.Middleware(admin.Conn), admin.handler.Operation)
+    //route.ANY("/operation/:_key_op_id", auth.Middleware(admin.Conn), admin.handler.Operation)
 
-    if config.GetOpenAdminApi() {
+    /*if config.GetOpenAdminApi() {
         // crud json apis
         apiRoute := route.Group("/api", auth.Middleware(admin.Conn), admin.guardian.CheckPrefix)
         apiRoute.GET("/list/:__prefix", admin.handler.ApiList).Name("api_info")
@@ -91,7 +91,7 @@ func (admin *Admin) initRouter() *Admin {
         apiRoute.GET("/create/form/:__prefix", admin.guardian.ShowNewForm, admin.handler.ApiCreateForm).Name("api_show_new")
         apiRoute.POST("/export/:__prefix", admin.guardian.Export, admin.handler.Export).Name("api_export")
         apiRoute.POST("/update/:__prefix", admin.guardian.Update, admin.handler.Update).Name("api_update")
-    }
+    }*/
 
     admin.App = app
     return admin

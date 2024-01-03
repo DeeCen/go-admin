@@ -396,9 +396,9 @@ func printInitMsg(msg string) {
 
 func (eng *Engine) initJumpNavButtons() {
     printInitMsg(language.Get("initialize navigation buttons"))
-    for _, param := range eng.initNavJumpButtonParams() {
+    /*for _, param := range eng.initNavJumpButtonParams() {
         eng.addJumpNavButton(param)
-    }
+    }*/
     navButtons = eng.NavButtons
     eng.Services.Add(ui.ServiceKey, ui.NewService(eng.NavButtons))
 }
@@ -525,7 +525,7 @@ func (eng *Engine) HTML(method, url string, fn types.GetPanelInfoFn, noAuth ...b
             buf  = new(bytes.Buffer)
         )
 
-        fmt.Println(`----------------debug user = `, user, tmplName)
+        //fmt.Println(`----------------debug user = `, user, tmplName)
 
         hasError := tmpl.ExecuteTemplate(buf, tmplName, types.NewPage(&types.NewPageParam{
             User:         user,

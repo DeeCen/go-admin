@@ -64,10 +64,10 @@ var List = map[string]string{"login": `{{define "login"}}
                                 <input type="text" class="form-control" placeholder="{{lang "captcha"}}" id="captcha">
                             </div>
                             <div class="col-xs-5">
-                                <img class="captcha" src="{% .CaptchaImgSrc %}" alt="" width="110" height="34">
+                                <img id="captcha-img" class="captcha" src="{% .CaptchaImgSrc %}" alt="" width="110" height="34">
                             </div>
                         </div>
-                        <input type="hidden" value="{% .CaptchaID %}" id="captcha_id">
+                        <input type="hidden" value="{% .CaptchaID %}" id="captcha-id">
                     </div>
                 {% end %}
                 <div class="row">
@@ -131,9 +131,23 @@ var List = map[string]string{"login": `{{define "login"}}
 
         {% if .CaptchaDigits %}
 
-        $(".captcha").on("click",function(){
-            location.reload();
-        });
+        $("#captcha-img").on("click",function(){
+            // location.reload();
+            $.ajax({
+                    dataType: 'json',
+                    type: 'POST',
+                    url: '/captchaRefresh',
+                    async: 'true',
+                    data: {},
+                    success: function (data) {
+                        $("#captcha-id").val(data.id);
+                        $("#captcha-img").attr('src',data.img);
+                    },
+                    error: function (data) {
+                        alert(data.responseJSON.msg);
+                    }
+                });
+        }).click();
 
         {% end %}
 
@@ -149,7 +163,7 @@ var List = map[string]string{"login": `{{define "login"}}
                 data: {
                     'username': $("#username").val(),
                     {% if .CaptchaDigits %}
-                        'token': $("#captcha").val() + "," + $("#captcha_id").val(),
+                        'token': $("#captcha").val() + "," + $("#captcha-id").val(),
                     {% end %}
                     'password': $("#password").val()
                 },
@@ -158,7 +172,7 @@ var List = map[string]string{"login": `{{define "login"}}
                 },
                 error: function (data) {
                     alert(data.responseJSON.msg);
-                    location.reload();
+                    $("#captcha-img").click();
                 }
             });
             {% end %}
