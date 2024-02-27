@@ -25,14 +25,19 @@ type AjaxAction struct {
     Handlers    []context.Handler
 }
 
+// AlertData 参考: https://sweetalert.js.org/docs/#configuration
 type AlertData struct {
     Title              string `json:"title"`
-    Type               string `json:"type"`
-    ShowCancelButton   bool   `json:"showCancelButton"`
-    ConfirmButtonColor string `json:"confirmButtonColor"`
-    ConfirmButtonText  string `json:"confirmButtonText"`
-    CloseOnConfirm     bool   `json:"closeOnConfirm"`
-    CancelButtonText   string `json:"cancelButtonText"`
+    Text               string `json:"text"`
+    Type               string `json:"icon"` // warning error success info
+    ConfirmButtonArr   []string `json:"buttons"`
+
+    // 新版本sweetAlert已废弃以下选项
+    ConfirmButtonText  string `json:"-"`
+    ShowCancelButton   bool   `json:"-"`
+    ConfirmButtonColor string `json:"-"`
+    CloseOnConfirm     bool   `json:"-"`
+    CancelButtonText   string `json:"-"`
 }
 
 func Ajax(id string, handler types.Handler) *AjaxAction {
@@ -169,14 +174,13 @@ func (ajax *AjaxAction) Js() template.JS {
 
     if ajax.Alert {
         b, _ := json.Marshal(ajax.AlertData)
-        ajaxStatement = "swal(" + string(b) + `)).then(
-        function (isDel) {
+        ajaxStatement = "swal(" + string(b) + `).then(function (isDel) {
             if(!isDel){return;}
             ` + ajaxStatement + `
         });`
     }
 
-    return template.JS(`$('`+ajax.BtnId+`').on('`+string(ajax.Event)+`', function (event) {
+    ret := template.JS(`$('`+ajax.BtnId+`').on('`+string(ajax.Event)+`', function (ev) {
                         let data = `+ajax.Data.JSON()+`;
                         `) + ajax.ParameterJS + template.JS(`
                         let id = $(this).attr("data-id");
@@ -185,6 +189,7 @@ func (ajax *AjaxAction) Js() template.JS {
                         }
                         `+ajaxStatement+`
                     });`)
+    return ret
 }
 
 func (ajax *AjaxAction) BtnAttribute() template.HTML { return template.HTML(`href="javascript:;"`) }

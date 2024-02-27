@@ -8,6 +8,7 @@ import (
     "mime"
     "net/http"
     "path"
+    "regexp"
     "strconv"
     "strings"
     "time"
@@ -147,7 +148,7 @@ func (h *Handler) showTable(ctx *context.Context, prefix string, params paramete
                     types.NewDefaultAction(`data-id='{{.ID}}' data-param='{{(index .Value "_key_delete_params").Content}}' style="cursor: pointer;"`,
                         ext, "", ""), "grid-row-delete")}, allActionBtns...)
             }
-            ext = template2.HTML("")
+            ext = ""
             /*if detailUrl != "" {
                 //if editUrl == "" && deleteUrl == "" {
                 //    ext = html.LiEl().SetClass("divider").Get()
@@ -375,12 +376,11 @@ func (h *Handler) Export(ctx *context.Context) {
             params = parameter.GetParam(ctx.Request.URL, tableInfo.DefaultPageSize, tableInfo.SortField,
                 tableInfo.GetSort())
             infoData, err = panel.GetData(params.WithIsAll(param.IsAll))
-            fileName = fmt.Sprintf("%s-%d-page-%s-pageSize-%s.xlsx", tableInfo.Title, time.Now().Unix(),
-                params.Page, params.PageSize)
+            fileName = fmt.Sprintf("%s-%s.xlsx", tableInfo.Title, time.Now().Format(`0102_150405`))
         } else {
             infoData, err = panel.GetDataWithIds(parameter.GetParam(ctx.Request.URL,
                 tableInfo.DefaultPageSize, tableInfo.SortField, tableInfo.GetSort()).WithPKs(param.ID...))
-            fileName = fmt.Sprintf("%s-%d-id-%s.xlsx", tableInfo.Title, time.Now().Unix(), strings.Join(param.ID, "_"))
+            fileName = fmt.Sprintf("%s-%s-sel.xlsx", tableInfo.Title, time.Now().Format(`0102_150405`))
         }
         if err != nil {
             response.Error(ctx, "export error")
@@ -419,7 +419,8 @@ func (h *Handler) Export(ctx *context.Context) {
                 if tableInfo.IsExportValue() {
                     f.SetCellValue(tableName, orders[columnIndex]+strconv.Itoa(count), info[head.Field].Value)
                 } else {
-                    f.SetCellValue(tableName, orders[columnIndex]+strconv.Itoa(count), info[head.Field].Content)
+                    excelContent := string(info[head.Field].Content)
+                    f.SetCellValue(tableName, orders[columnIndex]+strconv.Itoa(count), removeHTMLTags(excelContent))
                 }
                 columnIndex++
             }
@@ -436,4 +437,18 @@ func (h *Handler) Export(ctx *context.Context) {
 
     ctx.AddHeader("content-disposition", `attachment; filename=`+fileName)
     ctx.Data(200, "application/vnd.ms-excel", buf.Bytes())
+}
+
+var removeHTML = regexp.MustCompile(`<.*?>`)
+
+func removeHTMLTags(h string) (ret string) {
+    ret = removeHTML.ReplaceAllString(h, ``)
+    if ret == `` && strings.Contains(h, `fa-remove`) {
+        ret = `X`
+    }
+    if ret == `` && strings.Contains(h, `fa-check`) {
+        ret = `✔`
+    }
+
+    return ret
 }

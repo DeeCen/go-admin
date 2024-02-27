@@ -183,6 +183,12 @@ func Filter(ctx *context.Context, conn db.Connection) (models.UserModel, bool, b
         return userOk, false, false
     }
 
+    // 参数指定操作模块绕过权限检查的bug
+    pathReal := ctx.Query(`_opTab`)
+    if pathReal != `` && CheckPermissions(userOk, `/list/`+pathReal, ctx.Method(), ctx.PostForm()) == false {
+        return userOk, true, false
+    }
+
     return userOk, true, CheckPermissions(userOk, ctx.Request.URL.Path, ctx.Method(), ctx.PostForm())
 }
 

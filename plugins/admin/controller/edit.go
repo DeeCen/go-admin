@@ -7,21 +7,18 @@ import (
     "net/http"
     "net/url"
 
-    "github.com/GoAdminGroup/go-admin/modules/logger"
-
-    "github.com/GoAdminGroup/go-admin/template"
-
-    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/response"
-
     "github.com/GoAdminGroup/go-admin/context"
     "github.com/GoAdminGroup/go-admin/modules/auth"
     "github.com/GoAdminGroup/go-admin/modules/file"
     "github.com/GoAdminGroup/go-admin/modules/language"
+    "github.com/GoAdminGroup/go-admin/modules/logger"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/constant"
     form2 "github.com/GoAdminGroup/go-admin/plugins/admin/modules/form"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/guard"
     "github.com/GoAdminGroup/go-admin/plugins/admin/modules/parameter"
+    "github.com/GoAdminGroup/go-admin/plugins/admin/modules/response"
+    "github.com/GoAdminGroup/go-admin/template"
     "github.com/GoAdminGroup/go-admin/template/types"
     "github.com/GoAdminGroup/go-admin/template/types/form"
 )
@@ -140,11 +137,11 @@ func (h *Handler) showForm(ctx *context.Context, alert template2.HTML, prefix st
 // EditForm 编辑表单
 func (h *Handler) EditForm(ctx *context.Context) {
     param := guard.GetEditFormParam(ctx)
-    if param==nil{
+    if param == nil {
         return
     }
 
-    if param.MultiForm!=nil && len(param.MultiForm.File) > 0 {
+    if param.MultiForm != nil && len(param.MultiForm.File) > 0 {
         err := file.GetFileEngine(h.config.FileUploadEngine.Name).Upload(param.MultiForm)
         if err != nil {
             logger.Error("get file engine error: ", err)

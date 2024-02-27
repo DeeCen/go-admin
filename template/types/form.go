@@ -1459,7 +1459,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
     if f.AjaxErrorJS == `` {
         errorMsg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "data.responseJSON.msg")
         error2Msg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "'"+language.Get("error")+"'")
-        wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "text:data.msg,")
+        wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "text:data.responseJSON.msg,")
         f.AjaxErrorJS = template.JS(`
     if (data.responseText !== "") {
         if (data.responseJSON.data && data.responseJSON.data.token !== "") {

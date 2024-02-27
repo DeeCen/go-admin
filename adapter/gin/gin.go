@@ -84,7 +84,10 @@ func (gins *Gin) AddHandler(method, path string, handlers context.Handlers) {
             if c.Request.URL.RawQuery == "" {
                 c.Request.URL.RawQuery += strings.ReplaceAll(param.Key, ":", "") + "=" + param.Value
             } else {
-                c.Request.URL.RawQuery += "&" + strings.ReplaceAll(param.Key, ":", "") + "=" + param.Value
+                // 参数写在前面会被用户指定操作模块绕过权限检查的bug
+                //c.Request.URL.RawQuery += "&" + strings.ReplaceAll(param.Key, ":", "") + "=" + param.Value
+                c.Request.URL.RawQuery = strings.ReplaceAll(param.Key, ":", "") + "=" + param.Value + `&` +
+                    c.Request.URL.RawQuery
             }
         }
 

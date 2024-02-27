@@ -3,6 +3,7 @@ package action
 import (
     "encoding/json"
     "html/template"
+    "strings"
 
     "github.com/GoAdminGroup/go-admin/context"
     "github.com/GoAdminGroup/go-admin/modules/config"
@@ -25,10 +26,16 @@ func (a AjaxData) Add(m map[string]interface{}) AjaxData {
 
 func (a AjaxData) JSON() string {
     b, _ := json.Marshal(a)
-    return utils.ReplaceAll(string(b), `"{%id}"`, "{{.ID}}",
+    //println(`--------------debug----------,`,string(b))
+    /*return utils.ReplaceAll(string(b), `"{%id}"`, "{{.ID}}",
         `"{%ids}"`, "{{.IDs}}",
         `"{{.IDs}}"`, "{{.IDs}}",
-        `"{{.ID}}"`, "{{.ID}}")
+        `"{{.ID}}"`, "{{.ID}}")*/
+    bStr := strings.ReplaceAll(string(b),`"{%id}"`, `{{.ID}}`)
+    bStr = strings.ReplaceAll(bStr,`"{%ids}"`, `{{.IDs}}`)
+    bStr = strings.ReplaceAll(bStr,`"{{.IDs}}"`, `{{.IDs}}`)
+    bStr = strings.ReplaceAll(bStr,`"{{.ID}}"`, `{{.ID}}`)
+    return bStr
 }
 
 type BaseAction struct {
@@ -58,5 +65,5 @@ var _ types.Action = (*JumpAction)(nil)
 var _ types.Action = (*JumpSelectBoxAction)(nil)
 
 func URL(id string) string {
-    return config.Url("/operation/" + utils.WrapURL(id))
+    return config.Url("/ajax/" + utils.WrapURL(id))
 }

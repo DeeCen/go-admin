@@ -32,7 +32,7 @@ const (
     Sort     = "_srt"
     SortType = "_st"
     Columns  = "_cols"
-    Prefix   = "__prefix"
+    Prefix   = "_opTab"
     Pjax     = "_pjax"
 
     sortTypeDesc = "desc"

@@ -156,11 +156,10 @@ func (tb *DefaultTable) GetData(params parameter.Parameters) (PanelInfo, error) 
 
     thead, _, _, _, _, filterForm := tb.getTheadAndFilterForm(params, []string{})
 
-    endTime := time.Now()
-
     extraInfo := ""
 
     if !tb.Info.IsHideQueryInfo {
+        endTime := time.Now()
         extraInfo = fmt.Sprintf("<b>" + language.Get("query time") + ": </b>" +
             fmt.Sprintf("%.3fms", endTime.Sub(beginTime).Seconds()*1000))
     }
@@ -382,7 +381,7 @@ func (tb *DefaultTable) getTempModelData(res map[string]interface{}, params para
 func (tb *DefaultTable) getAllDataFromDatabase(params parameter.Parameters) (PanelInfo, error) {
     var (
         connection     = tb.db()
-        queryStatement = "select %s from %s %s %s %s order by " + modules.Delimiter(connection.GetDelimiter(), connection.GetDelimiter2(), "%s") + " %s"
+        queryStatement = "select %s from %s %s %s %s order by " + modules.Delimiter(connection.GetDelimiter(), connection.GetDelimiter2(), "%s") + " %s LIMIT 1000" // 限制最大导出1000条数据
     )
 
     columns, _ := tb.getColumns(tb.Info.Table)

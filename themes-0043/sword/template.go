@@ -95,7 +95,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{if not .User.HideUserCenterEntrance}}
                 <li>
                 <div class="pull-left" style="margin-top:10px;">
-                    <a href="{{.UrlPrefix}}/show/normal_manager?_key_edit_pk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a>
+                    <a href="{{.UrlPrefix}}/show/normal_manager?_epk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a>
                     </div>
                 <div class="pull-right" style="margin-top:10px;">
                     <a href="{{.UrlPrefix}}/logout" class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
@@ -365,11 +365,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             <input {{if .Must}}required="1"{{end}} style="width: 170px" type="text"
                    name="{{.Field}}"
                    value="{{.Value}}"
-                   class="form-control {{.Field}}" placeholder="{{.Placeholder}}">
+                   class="form-control {{.Field}}" id="input-{{.Field}}" placeholder="{{.Placeholder}}">
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}').parent().datetimepicker({{.OptionExt}});
+                $('#input-{{.Field}}').datetimepicker({{.OptionExt}});
             });
         </script>
     {{end}}
@@ -615,18 +615,18 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         <div class="box box-solid box-default no-margin">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/richtext": `{{define "form_rich_text"}}
     <div id="{{.Field}}-editor">
     </div>
-    <input type="hidden" id="{{.Field}}" name="{{.Field}}" value='{{.Value}}'
+    <input type="hidden" id="input-{{.Field}}" name="{{.Field}}" value='{{.Value}}'
            placeholder="{{.Placeholder}}">
     <script type="text/javascript">
         {{$field := (js .Field)}}
         {{$field}}editor = new window.wangEditor('#{{.Field}}-editor');
         {{$field}}editor.customConfig.onchange = function (html) {
-            $('#{{.Field}}').val(html)
+            $('#input-{{.Field}}').val(html)
         };
         {{.OptionExt}}
         {{$field}}editor.create();
@@ -636,7 +636,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{end}}
         window.wangEditor.fullscreen.init('#{{.Field}}-editor');
         $("form .btn.btn-primary").on("click", function(){
-            $("#{{.Field}}").val({{$field}}editor.txt.html())
+            $("#input-{{.Field}}").val({{$field}}editor.txt.html())
         });
     </script>
 {{end}}`, "components/form/select": `{{define "form_select"}}
@@ -1486,12 +1486,12 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{end}}
             {{if .ExportUrl}}
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-default">{{lang "Export"}}</a>
-                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                    <a id="exportHref" class="btn btn-sm btn-default">{{lang "export"}}</a>
+                    <button id="exportBtn" type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span>
                         <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                     </button>
-                    <ul class="dropdown-menu" role="menu">
+                    <ul id="exportMenu" class="dropdown-menu" role="menu">
                         <li><a href="#" id="export-btn-0">{{lang "Current Page"}}</a></li>
                         {{if .ExportUrl}}
                             <li><a href="#" id="export-btn-1">{{lang "All"}}</a></li>
@@ -1510,7 +1510,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 <span class="caret"></span>
                 <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                 </button>
-                <ul class="dropdown-menu" role="menu">
+                <ul id="menuAction" class="dropdown-menu" role="menu">
                     {{if .DeleteUrl}}
                         <li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
                     {{end}}
@@ -1539,6 +1539,9 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         $("#export-btn-1").click(function () {
             ExportData("true")
         });
+	 	$('#exportHref').click(function(){
+			setTimeout(function(){$('#exportBtn').click()},100);
+		});
 
         function ExportData(isAll) {
             let form = $("<form>");
@@ -1679,7 +1682,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         <td style="text-align: center;">
                             {{if not $ActionFold}}
                                 {{if $EditUrl}}
-                                    <a href='{{$EditUrl}}&_key_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
+                                    <a href='{{$EditUrl}}&_epk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
                                                 class="fa fa-edit" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DeleteUrl}}
@@ -1687,7 +1690,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                                        class="grid-row-delete"><i class="fa fa-trash" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DetailUrl}}
-                                    <a href='{{$DetailUrl}}&_key_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
+                                    <a href='{{$DetailUrl}}&_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
                                        class="grid-row-view">
                                         <i class="fa fa-eye" style="font-size: 16px;"></i>
                                     </a>

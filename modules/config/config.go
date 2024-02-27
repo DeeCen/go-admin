@@ -439,15 +439,15 @@ type URLFormat struct {
 }
 
 func (f URLFormat) SetDefault() URLFormat {
-    //f.Detail = utils.SetDefault(f.Detail, "", "/detail/:__prefix")
-    f.Info = utils.SetDefault(f.Info, "", "/list/:__prefix")
-    f.ShowEdit = utils.SetDefault(f.ShowEdit, "", "/show/:__prefix")
-    f.ShowCreate = utils.SetDefault(f.ShowCreate, "", "/new/:__prefix")
-    f.Export = utils.SetDefault(f.Export, "", "/excel/:__prefix")
-    f.Create = utils.SetDefault(f.Create, "", "/add/:__prefix")
-    f.Delete = utils.SetDefault(f.Delete, "", "/del/:__prefix")
-    f.Edit = utils.SetDefault(f.Edit, "", "/up/:__prefix")
-    //f.Update = utils.SetDefault(f.Update, "", "/upOne/:__prefix")
+    //f.Detail = utils.SetDefault(f.Detail, "", "/detail/:_opTab")
+    f.Info = utils.SetDefault(f.Info, "", "/list/:_opTab")
+    f.ShowEdit = utils.SetDefault(f.ShowEdit, "", "/show/:_opTab")
+    f.ShowCreate = utils.SetDefault(f.ShowCreate, "", "/new/:_opTab")
+    f.Export = utils.SetDefault(f.Export, "", "/excel/:_opTab")
+    f.Create = utils.SetDefault(f.Create, "", "/add/:_opTab")
+    f.Delete = utils.SetDefault(f.Delete, "", "/del/:_opTab")
+    f.Edit = utils.SetDefault(f.Edit, "", "/up/:_opTab")
+    //f.Update = utils.SetDefault(f.Update, "", "/upOne/:_opTab")
     return f
 }
 

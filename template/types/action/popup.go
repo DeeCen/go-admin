@@ -112,7 +112,7 @@ func PopUpWithIframe(id, title string, data IframeData, width, height string) *P
             scrolling="auto" 
             allowtransparency="true" 
             frameborder="0"
-            src="%s_key_iframe=true&_key_no_animation_=true&_key_iframe_id=%s`+param+`"><iframe>`,
+            src="%s_iframe=true&_key_no_animation_=true&_iframeId=%s`+param+`"><iframe>`,
             data.Width, data.Height, data.Src, modalID)
     }
     return &PopUpAction{

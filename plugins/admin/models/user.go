@@ -123,14 +123,21 @@ func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool
         return true
     }
 
-    //println(`-------------------Prefix=`, config.Prefix())
+    pre := config.Prefix()
+    if pre == path { // 首页
+        return true
+    }
+
+    // 移除前缀
+    path = strings.TrimPrefix(path, pre)
 
     // 登出
     // 管理自身信息的地址
+    // ajax全部页
     // 系统首页
     if strings.HasSuffix(path, `/logout`) ||
-        strings.Contains(path, `/normal_manager`) ||
-        path == config.Prefix() {
+        strings.HasPrefix(path, `/ajax/`) ||
+        strings.Contains(path, `/normal_manager`) {
         return true
     }
 
@@ -148,9 +155,9 @@ func (t UserModel) CheckPermissionByUrlMethod(path, _ string, _ url.Values) bool
         path = path[:len(path)-1]
     }
 
-    //println(`-------------------debug CheckPermissionByUrlMethod`)
-    //println(path)
-    //fmt.Printf(`%#v`, t.MenuIds)
+    /*println(`-------------------debug CheckPermissionByUrlMethod`)
+      println(path)
+      fmt.Printf(`%#v`, t.MenuIds)*/
 
     id := getMenuId(t.Conn, path)
     if id == 0 {
@@ -174,31 +181,31 @@ func InitURI2MenuURIData(k string) {
     var key string
     f := config.GetURLFormats()
 
-    val := strings.ReplaceAll(f.Info, `:__prefix`, k)
+    val := strings.ReplaceAll(f.Info, `:_opTab`, k)
     uriToMenuURI[val] = val
 
-    /*key = strings.ReplaceAll(f.Detail, `:__prefix`, k)
+    /*key = strings.ReplaceAll(f.Detail, `:_opTab`, k)
       uriToMenuURI[key] = val*/
 
-    key = strings.ReplaceAll(f.Create, `:__prefix`, k)
+    key = strings.ReplaceAll(f.Create, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.Delete, `:__prefix`, k)
+    key = strings.ReplaceAll(f.Delete, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.Export, `:__prefix`, k)
+    key = strings.ReplaceAll(f.Export, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.Edit, `:__prefix`, k)
+    key = strings.ReplaceAll(f.Edit, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.ShowEdit, `:__prefix`, k)
+    key = strings.ReplaceAll(f.ShowEdit, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    key = strings.ReplaceAll(f.ShowCreate, `:__prefix`, k)
+    key = strings.ReplaceAll(f.ShowCreate, `:_opTab`, k)
     uriToMenuURI[key] = val
 
-    //key = strings.ReplaceAll(f.Update, `:__prefix`, k)
+    //key = strings.ReplaceAll(f.Update, `:_opTab`, k)
     //uriToMenuURI[key] = val
 
     /*fmt.Println(`-----------InitURI2MenuURIData-----------`, k, len(uriToMenuURI))
@@ -220,6 +227,7 @@ func getMenuId(db db.Connection, uri string) (ret int64) {
         return
     }
 
+    // 这个sql没有日志
     menuInfo, err := db.Query(`SELECT id FROM goadmin_menu WHERE uri=? LIMIT 1`, menuURI)
     if err == nil && len(menuInfo) > 0 {
         id, _ := strconv.Atoi(fmt.Sprintf(`%d`, menuInfo[0][`id`]))

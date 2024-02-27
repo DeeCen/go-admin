@@ -93,7 +93,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{if not .User.HideUserCenterEntrance}}
           	<li>
                 <div class="pull-left" style="margin-top:10px;">
-                    <a href="{{.UrlPrefix}}/show/normal_manager?_key_edit_pk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a></div>
+                    <a href="{{.UrlPrefix}}/show/normal_manager?_epk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a></div>
                     <div class="pull-right" style="margin-top:10px;">
                         <a href="{{.UrlPrefix}}/logout" class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
                     </div>
@@ -366,7 +366,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}').parent().datetimepicker({{.OptionExt}});
+                $('#input-{{.Field}}').datetimepicker({{.OptionExt}});
             });
         </script>
     {{end}}
@@ -659,7 +659,7 @@ function getParam(name){
         {{end}}
         window.wangEditor.fullscreen.init('#{{.Field}}-editor');
         $("form .btn.btn-primary").on("click", function(){
-            $("#{{.Field}}").val({{$field}}editor.txt.html())
+            $("#input-{{.Field}}").val({{$field}}editor.txt.html())
         });
     </script>
 {{end}}`, "components/form/select": `{{define "form_select"}}
@@ -1523,7 +1523,7 @@ function getParam(name){
 
             <script>
                 $("#filter-btn").click(function () {
-                    $('.filter-area').toggle();
+                    $('.filter-area').toggle(200);
                 });
             </script>
 
@@ -1537,12 +1537,12 @@ function getParam(name){
             {{end}}
             {{if .ExportUrl}}
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-default">{{lang "Export"}}</a>
-                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                    <a id="exportHref" class="btn btn-sm btn-default">{{lang "export"}}</a>
+                    <button id="exportBtn" type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span>
                         <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                     </button>
-                    <ul class="dropdown-menu" role="menu">
+                    <ul id="exportMenu" class="dropdown-menu" role="menu">
                         <li><a href="#" id="export-btn-0">{{lang "Current Page"}}</a></li>
                         {{if .ExportUrl}}
                             <li><a href="#" id="export-btn-1">{{lang "All"}}</a></li>
@@ -1561,7 +1561,7 @@ function getParam(name){
                 <span class="caret"></span>
                 <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                 </button>
-                <ul class="dropdown-menu" role="menu">
+                <ul id="menuAction" class="dropdown-menu" role="menu">
                     {{if .DeleteUrl}}
                         <li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
                     {{end}}
@@ -1590,6 +1590,9 @@ function getParam(name){
         $("#export-btn-1").click(function () {
             ExportData("true")
         });
+		$('#exportHref').click(function(){
+			setTimeout(function(){$('#exportBtn').click()},100);
+		});
 
         function ExportData(isAll) {
             let form = $("<form>");
@@ -1730,7 +1733,7 @@ function getParam(name){
                         <td style="text-align: center;">
                             {{if not $ActionFold}}
                                 {{if $EditUrl}}
-                                    <a href='{{$EditUrl}}&_key_edit_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
+                                    <a href='{{$EditUrl}}&_epk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_edit_params").Content}}'><i
                                                 class="fa fa-edit" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DeleteUrl}}
@@ -1738,7 +1741,7 @@ function getParam(name){
                                        class="grid-row-delete"><i class="fa fa-trash" style="font-size: 16px;"></i></a>
                                 {{end}}
                                 {{if $DetailUrl}}
-                                    <a href='{{$DetailUrl}}&_key_detail_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
+                                    <a href='{{$DetailUrl}}&_pk={{(index $info $PrimaryKey).Content}}&{{(index $info "_key_detail_params").Content}}'
                                        class="grid-row-view">
                                         <i class="fa fa-eye" style="font-size: 16px;"></i>
                                     </a>

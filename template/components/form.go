@@ -146,7 +146,7 @@ func (compo *FormAttribute) GetDefaultBoxHeader(hideBack bool) template.HTML {
     return template.HTML(fmt.Sprintf(`<h3 class="box-title">%s</h3>
             <div class="box-tools">
                 <div class="btn-group pull-right" style="margin-right: 10px">
-                    <a href='%s' class="btn btn-sm btn-default form-history-back"><i
+                    <a id="backBtnA" href='%s' class="btn btn-sm btn-default form-history-back"><i
                                 class="fa fa-arrow-left"></i> %s</a>
                 </div>
             </div>`, language.GetFromHtml(compo.Title), compo.HiddenFields[form2.PreviousKey], language.Get("Back")))
@@ -179,7 +179,7 @@ func (compo *FormAttribute) GetDetailBoxHeader(editUrl, deleteUrl string) templa
             <div class="box-tools">
                 `+deleteBtn+editBtn+`
                 <div class="btn-group pull-right" style="margin-right: 10px">
-                    <a href='`+compo.HiddenFields[form2.PreviousKey]+`' class="btn btn-sm btn-default form-history-back"><i
+                    <a id="backBtnA" href='`+compo.HiddenFields[form2.PreviousKey]+`' class="btn btn-sm btn-default form-history-back"><i
                                 class="fa fa-arrow-left"></i> `+language.Get("Back")+`</a>
                 </div>
             </div>`)

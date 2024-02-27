@@ -12,13 +12,13 @@ const (
     PjaxURLHeader = constant.PjaxUrlHeader
 
     // EditPKKey 编辑主键标记
-    EditPKKey = "_key_edit_pk"
+    EditPKKey = "_epk"
     // DetailPKKey 查看主键标记
-    DetailPKKey = "_key_detail_pk"
-    PrefixKey   = "__prefix"
+    DetailPKKey = "_pk"
+    PrefixKey   = "_opTab"
 
-    IframeKey   = "_key_iframe"
-    IframeIDKey = "_key_iframe_id"
+    IframeKey   = "_iframe"
+    IframeIDKey = "_iframeId"
 
     ContextNodeNeedAuth = constant.ContextNodeNeedAuth
 )

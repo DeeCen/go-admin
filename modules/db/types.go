@@ -212,6 +212,11 @@ func GetValueFromSQLOfDatabaseType(typ DatabaseType, value interface{}) Value {
         if v, ok := value.(string); ok {
             return Value(v)
         }
+
+        if v, ok := value.([]byte); ok {
+            return Value(v)
+        }
+
         return ""
     case Contains(typ, BoolTypeList):
         if v, ok := value.(bool); ok {
@@ -253,6 +258,11 @@ func GetValueFromJSONOfDatabaseType(typ DatabaseType, value interface{}) Value {
         if v, ok := value.(string); ok {
             return Value(v)
         }
+
+        if v, ok := value.([]byte); ok {
+            return Value(v)
+        }
+
         return ""
     case Contains(typ, BoolTypeList):
         if v, ok := value.(bool); ok {

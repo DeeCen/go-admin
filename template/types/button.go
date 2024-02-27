@@ -239,13 +239,13 @@ func (b Buttons) CheckPermission(user models.UserModel) Buttons {
 }
 
 func (b Buttons) CheckPermissionWhenURLAndMethodNotEmpty(user models.UserModel) Buttons {
-    btns := make(Buttons, 0)
-    for _, b := range b {
-        if b.URL() == "" || b.METHOD() == "" || user.CheckPermissionByUrlMethod(b.URL(), b.METHOD(), url.Values{}) {
-            btns = append(btns, b)
+    btnArr := make(Buttons, 0)
+    for _, btn := range b {
+        if btn.URL() == "" || btn.METHOD() == "" || user.CheckPermissionByUrlMethod(btn.URL(), btn.METHOD(), url.Values{}) {
+            btnArr = append(btnArr, btn)
         }
     }
-    return btns
+    return btnArr
 }
 
 func (b Buttons) AddNavButton(ico, name string, action Action) Buttons {

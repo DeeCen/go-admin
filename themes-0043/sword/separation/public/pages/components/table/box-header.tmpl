@@ -40,7 +40,7 @@
 
             <script>
                 $("#filter-btn").click(function () {
-                    $('.filter-area').toggle();
+                    $('.filter-area').toggle(200);
                 });
             </script>
 
@@ -54,12 +54,12 @@
             {{end}}
             {{if .ExportUrl}}
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-default">{{lang "Export"}}</a>
-                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                    <a id="exportHref" class="btn btn-sm btn-default">{{lang "export"}}</a>
+                    <button id="exportBtn" type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span>
                         <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                     </button>
-                    <ul class="dropdown-menu" role="menu">
+                    <ul id="exportMenu" class="dropdown-menu" role="menu">
                         <li><a href="#" id="export-btn-0">{{lang "Current Page"}}</a></li>
                         {{if .ExportUrl}}
                             <li><a href="#" id="export-btn-1">{{lang "All"}}</a></li>
@@ -78,7 +78,7 @@
                 <span class="caret"></span>
                 <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
                 </button>
-                <ul class="dropdown-menu" role="menu">
+                <ul id="menuAction" class="dropdown-menu" role="menu">
                     {{if .DeleteUrl}}
                         <li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
                     {{end}}
@@ -106,6 +106,9 @@
         });
         $("#export-btn-1").click(function () {
             ExportData("true")
+        });
+        $('#exportHref').click(function(){
+            setTimeout(function(){$('#exportBtn').click()},100);
         });
 
         function ExportData(isAll) {

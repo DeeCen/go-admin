@@ -82,15 +82,15 @@ func (admin *Admin) initRouter() *Admin {
     /*if config.GetOpenAdminApi() {
         // crud json apis
         apiRoute := route.Group("/api", auth.Middleware(admin.Conn), admin.guardian.CheckPrefix)
-        apiRoute.GET("/list/:__prefix", admin.handler.ApiList).Name("api_info")
-        apiRoute.GET("/detail/:__prefix", admin.handler.ApiDetail).Name("api_detail")
-        apiRoute.POST("/delete/:__prefix", admin.guardian.Delete, admin.handler.Delete).Name("api_delete")
-        apiRoute.POST("/edit/:__prefix", admin.guardian.EditForm, admin.handler.ApiUpdate).Name("api_edit")
-        apiRoute.GET("/edit/form/:__prefix", admin.guardian.ShowForm, admin.handler.ApiUpdateForm).Name("api_show_edit")
-        apiRoute.POST("/create/:__prefix", admin.guardian.NewForm, admin.handler.ApiCreate).Name("api_new")
-        apiRoute.GET("/create/form/:__prefix", admin.guardian.ShowNewForm, admin.handler.ApiCreateForm).Name("api_show_new")
-        apiRoute.POST("/export/:__prefix", admin.guardian.Export, admin.handler.Export).Name("api_export")
-        apiRoute.POST("/update/:__prefix", admin.guardian.Update, admin.handler.Update).Name("api_update")
+        apiRoute.GET("/list/:_opTab", admin.handler.ApiList).Name("api_info")
+        apiRoute.GET("/detail/:_opTab", admin.handler.ApiDetail).Name("api_detail")
+        apiRoute.POST("/delete/:_opTab", admin.guardian.Delete, admin.handler.Delete).Name("api_delete")
+        apiRoute.POST("/edit/:_opTab", admin.guardian.EditForm, admin.handler.ApiUpdate).Name("api_edit")
+        apiRoute.GET("/edit/form/:_opTab", admin.guardian.ShowForm, admin.handler.ApiUpdateForm).Name("api_show_edit")
+        apiRoute.POST("/create/:_opTab", admin.guardian.NewForm, admin.handler.ApiCreate).Name("api_new")
+        apiRoute.GET("/create/form/:_opTab", admin.guardian.ShowNewForm, admin.handler.ApiCreateForm).Name("api_show_new")
+        apiRoute.POST("/export/:_opTab", admin.guardian.Export, admin.handler.Export).Name("api_export")
+        apiRoute.POST("/update/:_opTab", admin.guardian.Update, admin.handler.Update).Name("api_update")
     }*/
 
     admin.App = app

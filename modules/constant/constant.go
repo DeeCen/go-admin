@@ -8,10 +8,10 @@ const (
     PjaxUrlHeader = "X-PJAX-Url"
 
     // Title is default title of the project.
-    Title = "GoAdmin"
+    Title = "Admin"
 
     ContextNodeNeedAuth = "need_auth"
 
-    IframeKey   = "_key_iframe"
-    IframeIDKey = "_key_iframe_id"
+    IframeKey = "_iframe"
+    //IframeIDKey = "_iframeId"
 )

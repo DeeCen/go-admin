@@ -31,12 +31,12 @@ func TestTree(t *testing.T) {
     tree.addPath(stringToArr("/admin"), "GET", []Handler{func(ctx *Context) { fmt.Println(1) }})
     tree.addPath(stringToArr("/admin/menu/new"), "POST", []Handler{func(ctx *Context) { fmt.Println(1) }})
     tree.addPath(stringToArr("/admin/menu/new"), "GET", []Handler{func(ctx *Context) { fmt.Println(1) }})
-    tree.addPath(stringToArr("/admin/info/:__prefix"), "GET", []Handler{
+    tree.addPath(stringToArr("/admin/info/:_opTab"), "GET", []Handler{
         func(ctx *Context) { fmt.Println("auth") },
         func(ctx *Context) { fmt.Println("init") },
         func(ctx *Context) { fmt.Println("info") },
     })
-    tree.addPath(stringToArr("/admin/info/:__prefix/detail"), "GET", []Handler{
+    tree.addPath(stringToArr("/admin/info/:_opTab/detail"), "GET", []Handler{
         func(ctx *Context) { fmt.Println("auth") },
         func(ctx *Context) { fmt.Println("detail") },
     })

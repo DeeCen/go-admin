@@ -78,6 +78,11 @@ func (h *Handler) SetRoutes(r context.RouterMap) {
 }
 
 func (h *Handler) table(prefix string, ctx *context.Context) table.Table {
+
+    /*if prefix != `` {
+        return nil // 直接崩溃好了
+    }*/
+
     t := h.generators[prefix](ctx)
     authHandler := auth.Middleware(db.GetConnection(h.services))
     for _, cb := range t.GetInfo().Callbacks {
