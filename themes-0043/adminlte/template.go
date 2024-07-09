@@ -390,7 +390,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             $(function () {
 				function getParam(key){
 					const p = new URLSearchParams(window.location.search);
-					return decodeURIComponent(p.get(key));
+					var ret = decodeURIComponent(p.get(key));
+					if (ret=='null'){
+						ret = '';
+					}
+					return ret;
 				}
 				
 				var inputStart = $('#{{.Field}}_start_key');
