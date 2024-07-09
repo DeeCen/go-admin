@@ -33,7 +33,7 @@ func (g *Guard) Export(ctx *context.Context) {
         Panel:  panel,
         ID:     idStr,
         Prefix: prefix,
-        IsAll:  ctx.FormValue("is_all") == "true",
+        IsAll:  ctx.FormValue("_isAll") == "true",
     })
     ctx.Next()
 }

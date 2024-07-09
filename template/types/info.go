@@ -1344,8 +1344,10 @@ func (i *InfoPanel) FieldFilterable(filterType ...FilterType) *InfoPanel {
 }
 
 func (i *InfoPanel) FieldFilterOptions(options FieldOptions) *InfoPanel {
-    i.FieldList[i.curFieldListIndex].FilterFormFields[0].Options = options
-    i.FieldList[i.curFieldListIndex].FilterFormFields[0].OptionExt = `{"allowClear": "true"}`
+    if len(i.FieldList[i.curFieldListIndex].FilterFormFields)>0{
+        i.FieldList[i.curFieldListIndex].FilterFormFields[0].Options = options
+        i.FieldList[i.curFieldListIndex].FilterFormFields[0].OptionExt = `{"allowClear": "true"}`
+    }
     return i
 }
 
@@ -1401,7 +1403,7 @@ func (i *InfoPanel) FieldFilterOnChoose(val, field string, value template.HTML) 
 }
 
 func (i *InfoPanel) OperationURL(id string) string {
-    return config.Url("/operation/" + utils.WrapURL(id))
+    return config.Url("/ajax/" + utils.WrapURL(id))
 }
 
 func (i *InfoPanel) FieldFilterOnChooseAjax(field, url string, handler Handler) *InfoPanel {
@@ -1685,11 +1687,22 @@ func (i *InfoPanel) HideCheckBoxColumn() *InfoPanel {
     return i.HideColumn(1)
 }
 
+func (i *InfoPanel) Hide() *InfoPanel {
+    i.HideColumn(len(i.FieldList)+1)
+    return i
+}
+
 func (i *InfoPanel) HideColumn(n int) *InfoPanel {
     i.AddCSS(template.CSS(fmt.Sprintf(`
     .box-body table.table tbody tr td:nth-child(%v), .box-body table.table tbody tr th:nth-child(%v) {
         display: none;
     }`, n, n)))
+
+    // 默认给excel也隐藏
+    if n>=2 && n<(len(i.FieldList)+2) {
+        i.FieldList[n-2].HideForExport = true
+    }
+
     return i
 }
 

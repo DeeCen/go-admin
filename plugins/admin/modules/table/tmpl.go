@@ -351,12 +351,11 @@ var tmpls = map[string]string{"choose_table_ajax": `{{define "choose_table_ajax"
 
         function conn_req_refresh(selectObj, box, event) {
             $.ajax({
-                url: "\/admin\/operation\/_tool_choose_conn",
+                url: "\/admin\/ajax\/_tool_choose_conn",
                 type: 'post',
                 dataType: 'text',
                 data: {
                     'value': $("select.conn").val(),
-
                     'event': event
                 },
                 success: function (data) {

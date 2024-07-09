@@ -2,6 +2,7 @@ package form
 
 import (
     "errors"
+    "strings"
 )
 
 const (
@@ -28,7 +29,7 @@ type Values map[string][]string
 // directly.
 func (f Values) Get(key string) string {
     if len(f[key]) > 0 {
-        return f[key][0]
+        return strings.TrimSpace(f[key][0])
     }
     return ""
 }
@@ -69,7 +70,7 @@ func (f Values) ToMap() map[string]string {
     var m = make(map[string]string)
     for key, v := range f {
         if len(v) > 0 {
-            m[key] = v[0]
+            m[key] = strings.TrimSpace(v[0])
         }
     }
     return m

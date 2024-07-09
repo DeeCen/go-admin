@@ -1013,7 +1013,7 @@ func (f *FormPanel) FieldOnChoose(val, field string, value template.HTML) *FormP
 }
 
 func (f *FormPanel) OperationURL(id string) string {
-    return config.Url("/operation/" + utils.WrapURL(id))
+    return config.Url("/ajax/" + utils.WrapURL(id))
 }
 
 func (f *FormPanel) FieldOnChooseAjax(field, url string, handler Handler, custom ...template.HTML) *FormPanel {
@@ -1403,7 +1403,7 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
         errorMsg := modules.AorB(data.ErrorTitle != "", `"`+data.ErrorTitle+`"`, "data.msg")
         jump := modules.AorB(data.SuccessJumpURL != "", `"`+data.SuccessJumpURL+`"`, "typeof data.data=='undefined' ? '' : data.data.url")
         text := modules.AorB(data.SuccessText != "", `text:"`+data.SuccessText+`",`, "")
-        wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "text:data.msg,")
+        wrongText := modules.AorB(data.ErrorText != "", `text:"`+data.ErrorText+`",`, "")
         jumpURL := ""
         if !data.DisableJump {
             if data.JumpInNewTab != "" {
@@ -1427,12 +1427,10 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
     }
     if (data.code===200 || data.code===0) {
         swal({
-            type: "success",
+            icon: "success",
             title: ` + successMsg + `,
             ` + text + `
-            showCancelButton: false,
-            confirmButtonColor: "#3c8dbc",
-            confirmButtonText: '` + language.Get("got it") + `'
+            buttons: [false,"` + language.Get("got it") + `"]
         }).then(function (isDel) {
             if(!isDel){return;}
             swal.close();
@@ -1446,12 +1444,10 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
             $("input[name='_key_t_']").val(data.data.token);
         }
         swal({
-            type: "error",
+            icon: "error",
             title: ` + errorMsg + `,
             ` + wrongText + `
-            showCancelButton: false,
-            confirmButtonColor: "#3c8dbc",
-            confirmButtonText: '` + language.Get("got it") + `',
+            buttons: [false,"` + language.Get("got it") + `"]
         })
     }
 `)
@@ -1466,21 +1462,17 @@ func (f *FormPanel) EnableAjaxData(data AjaxData) *FormPanel {
             $("input[name='_key_t_']").val(data.responseJSON.data.token)
         }
         swal({
-            type: "error",
+            icon: "error",
             title: ` + errorMsg + `,
             ` + wrongText + `
-            showCancelButton: false,
-            confirmButtonColor: "#3c8dbc",
-            confirmButtonText: '` + language.Get("got it") + `',
+            buttons: [false,"` + language.Get("got it") + `"]
         })
     } else {
         swal({
-            type: "error",
+            icon: "error",
             title: ` + error2Msg + `,
             ` + wrongText + `
-            showCancelButton: false,
-            confirmButtonColor: "#3c8dbc",
-            confirmButtonText: '` + language.Get("got it") + `',
+            buttons: [false,"` + language.Get("got it") + `"]
         })
     }
 `)

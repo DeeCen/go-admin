@@ -16,19 +16,32 @@
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
+				function getParam(key){
+					const p = new URLSearchParams(window.location.search);
+					return decodeURIComponent(p.get(key));
+				}
+				
+				var inputStart = $('#{{.Field}}_start_key');
+				var inputEnd = $('#{{.Field}}_end_key');
+				
+                inputStart.datetimepicker({{.OptionExt}});
                 {{if eq .OptionExt2 ""}}
-                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
+                    inputEnd.datetimepicker({{.OptionExt}});
                 {{else}}
-                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
+                    inputEnd.datetimepicker({{.OptionExt2}});
                 {{end}}
 
-                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
+                inputStart.on("dp.change", function (e) {
+                    inputEnd.data("DateTimePicker").minDate(e.date);
                 });
-                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
+                inputEnd.on("dp.change", function (e) {
+                    inputStart.data("DateTimePicker").maxDate(e.date);
                 });
+				
+				var d1 = getParam('{{.Field}}_start_key');
+				var d2 = getParam('{{.Field}}_end_key');
+				if(d1!='' && inputStart.val()==''){inputStart.val(d1);}
+				if(d2!='' && inputEnd.val()==''){inputEnd.val(d2);}
             });
         </script>
     {{else}}

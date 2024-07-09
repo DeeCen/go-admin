@@ -72,7 +72,12 @@ func (g *Guard) ShowForm(ctx *context.Context) {
 }
 
 func GetShowFormParam(ctx *context.Context) *ShowFormParam {
-    return ctx.UserValue[showFormParamKey].(*ShowFormParam)
+    //return ctx.UserValue[showFormParamKey].(*ShowFormParam);
+    if v,ok := ctx.UserValue[showFormParamKey];ok{
+        return v.(*ShowFormParam);
+    }
+
+    return nil
 }
 
 type EditFormParam struct {

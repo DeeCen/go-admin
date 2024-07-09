@@ -14,7 +14,7 @@ import (
 
 func (h *Handler) Operation(ctx *context.Context) {
     id := ctx.Query("_key_op_id")
-    if !h.OperationHandler(config.Url("/operation/"+id), ctx) {
+    if !h.OperationHandler(config.Url("/ajax/"+id), ctx) {
         errMsg := "not found"
         if ctx.Headers(constant.PjaxHeader) == "" && ctx.Method() != "GET" {
             response.BadRequest(ctx, errMsg)

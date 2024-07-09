@@ -19,7 +19,7 @@ var cn = LangSet{
     "filter":   "筛选",
     "can like": "支持模糊搜索",
 
-    "new":             "新建",
+    "new":             "新增",
     "export":          "导出",
     "action":          "操作",
     "toggle dropdown": "下拉",

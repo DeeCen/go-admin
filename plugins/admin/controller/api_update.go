@@ -49,6 +49,10 @@ func (h *Handler) ApiUpdate(ctx *context.Context) {
 
 func (h *Handler) ApiUpdateForm(ctx *context.Context) {
     params := guard.GetShowFormParam(ctx)
+    if params == nil {
+        response.Error(ctx, `ApiUpdateForm:guard.GetShowFormParam nil`)
+        return
+    }
 
     prefix, param := params.Prefix, params.Param
 

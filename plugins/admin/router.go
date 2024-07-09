@@ -77,7 +77,7 @@ func (admin *Admin) initRouter() *Admin {
 
     //authRoute.GET("/application/info", admin.handler.SystemInfo)
 
-    //route.ANY("/operation/:_key_op_id", auth.Middleware(admin.Conn), admin.handler.Operation)
+    route.ANY("/ajax/:_key_op_id", auth.Middleware(admin.Conn), admin.handler.Operation)
 
     /*if config.GetOpenAdminApi() {
         // crud json apis

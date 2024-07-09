@@ -1503,23 +1503,25 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{renderRowDataHTML "" .Buttons}}
     </div>
     <span>
-        {{if or .DeleteUrl .ExportUrl}}
-            <div class="btn-group">
-                <a class="btn btn-sm btn-default">{{lang "Action"}}</a>
-                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
-                </button>
-                <ul id="menuAction" class="dropdown-menu" role="menu">
-                    {{if .DeleteUrl}}
-                        <li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
-                    {{end}}
-                    {{if .ExportUrl}}
-                        <li><a href="#" class="grid-batch-1">{{lang "Export"}}</a></li>
-                    {{end}}
-                </ul>
-            </div>
-        {{end}}
+		{{if ne .IsHideRowSelector true}}
+			{{if or .DeleteUrl .ExportUrl}}
+				<div class="btn-group">
+					<a class="btn btn-sm btn-default">{{lang "Action"}}</a>
+					<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+					<span class="sr-only">{{lang "Toggle Dropdown"}}</span>
+					</button>
+					<ul id="menuAction" class="dropdown-menu" role="menu">
+						{{if .DeleteUrl}}
+							<li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
+						{{end}}
+						{{if .ExportUrl}}
+							<li><a href="#" class="grid-batch-1">{{lang "Export"}}</a></li>
+						{{end}}
+					</ul>
+				</div>
+			{{end}}
+		{{end}}
         <a class="btn btn-sm btn-primary grid-refresh" style="margin-left: 10px;">
             <i class="fa fa-refresh"></i> {{lang "Refresh"}}
         </a>
@@ -1555,7 +1557,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             input1.attr("value", (new Date()).getTime());
             let input2 = $("<input>");
             input2.attr("type", "hidden");
-            input2.attr("name", "is_all");
+            input2.attr("name", "_isAll");
             input2.attr("value", isAll);
             $("body").append(form);
             form.append(input1);

@@ -26,6 +26,11 @@ import (
 // ShowForm show form page.
 func (h *Handler) ShowForm(ctx *context.Context) {
     param := guard.GetShowFormParam(ctx)
+    if param == nil {
+        response.Error(ctx, `ShowForm:guard.GetShowFormParam nil`)
+        return
+    }
+
     h.showForm(ctx, "", param.Prefix, param.Param, false)
 }
 

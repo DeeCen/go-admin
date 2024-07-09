@@ -91,7 +91,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 </a>
             </li>
             {{if not .User.HideUserCenterEntrance}}
-          	<li>
+            <li>
                 <div class="pull-left" style="margin-top:10px;">
                     <a href="{{.UrlPrefix}}/show/normal_manager?_epk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a></div>
                     <div class="pull-right" style="margin-top:10px;">
@@ -366,7 +366,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         </div>
         <script>
             $(function () {
-                $('#input-{{.Field}}').datetimepicker({{.OptionExt}});
+                $('input.{{.Field}}').parent().datetimepicker({{.OptionExt}});
             });
         </script>
     {{end}}
@@ -387,45 +387,33 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                    class="form-control {{.Field}}_end_key" placeholder="{{.Placeholder}}">
         </div>
         <script>
-function getParam(name){
-    var localUrl = document.location.href; 
-    var idx = localUrl.indexOf(name +"=");
-    if(idx == -1){
-        return false;   
-    }   
-
-    var param = localUrl.slice(name.length + idx + 1);    
-    var idxNext = param.indexOf("&");
-    if(idxNext != -1){
-        param = param.slice(0, idxNext);
-    }
-    return decodeURIComponent(param);
-}
-
             $(function () {
-                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
-
-				{{if eq .OptionExt2 ""}}
-				$('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
-				{{else}}
-                $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
-				{{end}}
-
-                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
-                });
-                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
-                });
-
-				var t1 = getParam('{{.Field}}_start_key');
-				var t2 = getParam('{{.Field}}_end_key');
-				if(t1!=''){
-					$('#{{.Field}}_start_key').val(t1);
+				function getParam(key){
+					const p = new URLSearchParams(window.location.search);
+					return decodeURIComponent(p.get(key));
 				}
-				if(t2!=''){
-					$('#{{.Field}}_end_key').val(t2);
-				}
+				
+				var inputStart = $('#{{.Field}}_start_key');
+				var inputEnd = $('#{{.Field}}_end_key');
+				
+                inputStart.datetimepicker({{.OptionExt}});
+                {{if eq .OptionExt2 ""}}
+                    inputEnd.datetimepicker({{.OptionExt}});
+                {{else}}
+                    inputEnd.datetimepicker({{.OptionExt2}});
+                {{end}}
+
+                inputStart.on("dp.change", function (e) {
+                    inputEnd.data("DateTimePicker").minDate(e.date);
+                });
+                inputEnd.on("dp.change", function (e) {
+                    inputStart.data("DateTimePicker").maxDate(e.date);
+                });
+				
+				var d1 = getParam('{{.Field}}_start_key');
+				var d2 = getParam('{{.Field}}_end_key');
+				if(d1!='' && inputStart.val()==''){inputStart.val(d1);}
+				if(d2!='' && inputEnd.val()==''){inputEnd.val(d2);}
             });
         </script>
     {{else}}
@@ -659,7 +647,7 @@ function getParam(name){
         {{end}}
         window.wangEditor.fullscreen.init('#{{.Field}}-editor');
         $("form .btn.btn-primary").on("click", function(){
-            $("#input-{{.Field}}").val({{$field}}editor.txt.html())
+            $("#{{.Field}}").val({{$field}}editor.txt.html())
         });
     </script>
 {{end}}`, "components/form/select": `{{define "form_select"}}
@@ -1590,9 +1578,9 @@ function getParam(name){
         $("#export-btn-1").click(function () {
             ExportData("true")
         });
-		$('#exportHref').click(function(){
-			setTimeout(function(){$('#exportBtn').click()},100);
-		});
+        $('#exportHref').click(function(){
+            setTimeout(function(){$('#exportBtn').click()},100);
+        });
 
         function ExportData(isAll) {
             let form = $("<form>");
@@ -1606,7 +1594,7 @@ function getParam(name){
             input1.attr("value", (new Date()).getTime());
             let input2 = $("<input>");
             input2.attr("type", "hidden");
-            input2.attr("name", "is_all");
+            input2.attr("name", "_isAll");
             input2.attr("value", isAll);
             $("body").append(form);
             form.append(input1);

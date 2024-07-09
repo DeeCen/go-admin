@@ -32,7 +32,7 @@ var (
         Encoding:      "console",
     }
     defaultRotateCfg = RotateCfg{
-        MaxSize:    10,
+        MaxSize:    100,
         MaxBackups: 5,
         MaxAge:     30,
         Compress:   false,

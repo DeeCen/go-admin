@@ -165,6 +165,11 @@ func GetActionIconButton(icon string, action Action, ids ...string) *ActionIconB
         id = "action-info-btn-" + utils.Uuid(10)
     }
 
+    title:=``
+    if len(ids)>=2{
+        title = ids[1]
+    }
+
     action.SetBtnId("." + id)
     node := action.GetCallbacks()
 
@@ -175,13 +180,14 @@ func GetActionIconButton(icon string, action Action, ids ...string) *ActionIconB
             Action: action,
             Url:    node.Path,
             Method: node.Method,
+            Title: template.HTML(title),
         },
     }
 }
 
 func (b *ActionIconButton) Content() (template.HTML, template.JS) {
     h := template.HTML(`<a data-id="{{.ID}}" class="`+template.HTML(b.ID)+` `+
-        b.Action.BtnClass()+`" `+b.Action.BtnAttribute()+`><i class="fa `+b.Icon+`" style="font-size: 16px;"></i></a>`) + b.Action.ExtContent()
+        b.Action.BtnClass()+`" `+b.Action.BtnAttribute()+`><i title="`+b.Title+`" class="fa `+b.Icon+`" style="font-size: 16px;"></i></a>`) + b.Action.ExtContent()
     return h, b.Action.Js()
 }
 
