@@ -1,7 +1,5 @@
-// Package sword  sword模板
 package sword
 
-// TemplateList 模板列表
 var TemplateList = map[string]string{"403": `<div class="missing-content">
     <div class="missing-content-title">403</div>
     <div class="missing-content-title-subtitle">Sorry, you don't have access to this page.</div>
@@ -94,13 +92,13 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             </li>
             {{if not .User.HideUserCenterEntrance}}
                 <li>
-                <div class="pull-left" style="margin-top:10px;">
-                    <a href="{{.UrlPrefix}}/show/normal_manager?_epk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a>
-                    </div>
-                <div class="pull-right" style="margin-top:10px;">
-                    <a href="{{.UrlPrefix}}/logout" class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
-                </div>
-                </li>
+                                <div class="pull-left" style="margin-top:10px;">
+                                    <a href="{{.UrlPrefix}}/show/normal_manager?_epk={{.User.ID}}" class="btn btn-default btn-flat">{{lang "setting"}}</a>
+                                    </div>
+                                <div class="pull-right" style="margin-top:10px;">
+                                    <a href="{{.UrlPrefix}}/logout" class="no-pjax btn btn-default btn-flat">{{lang "sign out"}}</a>
+                                </div>
+                                </li>
             {{end}}
         </ul>
     </div>
@@ -229,12 +227,12 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
 {{end}}`, "components/form/checkbox_single": `{{define "form_checkbox_single"}}
     <span class="icheck">
         <label class="checkbox-inline">
-            <input type="checkbox" class="{{.FieldClass}}" {{attr (index .Options 0).SelectedLabel}} value='{{(index .Options 0).Value}}' name="{{.Field}}" style="position: absolute; opacity: 0;">
+            <input type="checkbox" class="{{.FieldClass}}" {{attr (index .Options 0).SelectedLabel}} value='{{(index .Options 0).Value}}' id="input-{{.Field}}" name="{{.Field}}" style="position: absolute; opacity: 0;">
             {{if ne (index .Options 0).Text ""}}
                 &nbsp;{{(index .Options 0).Text}}&nbsp;&nbsp;
             {{end}}
             {{if ne (index .Options 0).SelectedLabel "checked"}}
-                <input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}">
+                <input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}" id="input-hidden-{{.Field}}">
             {{end}}
         </label>
     </span>
@@ -246,7 +244,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 next.remove();
             }
         } else {
-            $(this).parent().parent().append('<input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}">')
+            $(this).parent().parent().append('<input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}" id="input-hidden-{{.Field}}">')
         }
     });
 </script>
@@ -273,7 +271,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         <textarea {{if .Must}}required="1"{{end}} class="ace_text-input {{.Field}}"
                 {{if not .Editable}}disabled="disabled"{{end}}>{{.Value}}</textarea>
     </pre>
-    <textarea style="display:none;" id="{{.Field}}_input" name="{{.Field}}">{{.Value}}</textarea>
+    <textarea style="display:none;" id="textarea-{{.Field}}" name="{{.Field}}">{{.Value}}</textarea>
     <script>
         {{.OptionExt}}
         {{$field := (js .Field)}}
@@ -284,7 +282,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{$field}}editor.setReadOnly({{if not .Editable}}true{{else}}false{{end}});
         {{$field}}editor.setOptions(options);
         {{$field}}editor.session.on('change', function(delta) {
-            $('#{{.Field}}_input').html(encodeURIComponent({{$field}}editor.getValue()));
+            $('#textarea-{{.Field}}').html(encodeURIComponent({{$field}}editor.getValue()));
         });
     </script>
 {{end}}`, "components/form/color": `{{define "form_color"}}
@@ -293,7 +291,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{if not .NoIcon}}
                 <span class="input-group-addon"><i style="background-color: rgb(0, 0, 0);"></i></span>
             {{end}}
-            <input {{if .Must}}required="1"{{end}} style="width: 140px" type="text" name="{{.Field}}"
+            <input {{if .Must}}required="1"{{end}} style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}"
                    value="" class="form-control {{.Field}}" placeholder="{{.Value}}">
         </div>
         <script>
@@ -303,7 +301,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         <div class="box box-solid box-default no-margin">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/currency": `{{define "form_currency"}}
     {{if .Editable}}
@@ -312,7 +310,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 <span class="input-group-addon">$</span>
             {{end}}
             <input {{if .Must}}required="1"{{end}} style="width: 120px; text-align: right;" type="text"
-                   name="{{.Field}}"
+                   name="{{.Field}}" id="input-{{.Field}}" 
                    value="{{.Value}}" class="form-control {{.Field}}" placeholder="{{.Head}}">
         </div>
         <script>
@@ -326,10 +324,10 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             });
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/custom": `{{define "form_custom"}}
     <div class="input-group">
@@ -347,11 +345,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
     {{end}}
 {{end}}`, "components/form/datetime": `{{define "form_datetime"}}
     {{if not .Editable}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body" style="min-height: 40px;">
                 {{.Value}}
             </div>
-            <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+            <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
         </div>
     {{else}}
         <div class="input-group">
@@ -363,13 +361,13 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 {{end}}
             {{end}}            
             <input {{if .Must}}required="1"{{end}} style="width: 170px" type="text"
-                   name="{{.Field}}"
+                   name="{{.Field}}" id="input-{{.Field}}" 
                    value="{{.Value}}"
-                   class="form-control {{.Field}}" id="input-{{.Field}}" placeholder="{{.Placeholder}}">
+                   class="form-control {{.Field}}" placeholder="{{.Placeholder}}">
         </div>
         <script>
             $(function () {
-                $('#input-{{.Field}}').datetimepicker({{.OptionExt}});
+                $('input.{{.Field}}').parent().datetimepicker({{.OptionExt}});
             });
         </script>
     {{end}}
@@ -391,50 +389,67 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
+				function getParam(key){
+					const p = new URLSearchParams(window.location.search);
+					var ret = decodeURIComponent(p.get(key));
+					if (ret=='null'){
+						ret = '';
+					}
+					return ret;
+				}
+				
+				var inputStart = $('#{{.Field}}_start_key');
+				var inputEnd = $('#{{.Field}}_end_key');
+				
+                inputStart.datetimepicker({{.OptionExt}});
                 {{if eq .OptionExt2 ""}}
-					$('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
-				{{else}}
-					$('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
-				{{end}}
+                    inputEnd.datetimepicker({{.OptionExt}});
+                {{else}}
+                    inputEnd.datetimepicker({{.OptionExt2}});
+                {{end}}
 
-                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
+                inputStart.on("dp.change", function (e) {
+                    inputEnd.data("DateTimePicker").minDate(e.date);
                 });
-                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
+                inputEnd.on("dp.change", function (e) {
+                    inputStart.data("DateTimePicker").maxDate(e.date);
                 });
+				
+				var d1 = getParam('{{.Field}}_start_key');
+				var d2 = getParam('{{.Field}}_end_key');
+				if(d1!='' && inputStart.val()==''){inputStart.val(d1);}
+				if(d2!='' && inputEnd.val()==''){inputEnd.val(d2);}
             });
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/default": `{{define "form_default"}}
-    <div class="box box-solid box-default no-margin">
+    <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
         <div class="box-body" style="min-height: 40px;">
             {{.Value}}
         </div>
     </div>
-    <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+    <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
 {{end}}`, "components/form/email": `{{define "form_email"}}
     {{if .Editable}}
         <div class="input-group">
             <span class="input-group-addon"><i class="fa fa-envelope fa-fw"></i></span>
-            <input {{if .Must}}required="1"{{end}} type="email" name="{{.Field}}" value='{{.Value}}'
+            <input {{if .Must}}required="1"{{end}} type="email" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'
                    class="form-control {{.Field}}"
                    placeholder="{{.Placeholder}}">
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/file": `{{define "form_file"}}
-    <input type="file" class="{{.Field}}" name="{{.Field}}" data-initial-preview="{{.Value2}}"
+    <input type="file" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" data-initial-preview="{{.Value2}}"
            data-initial-caption="{{.Value}}">
     <input type="hidden" value="0" name="{{.Field}}__delete_flag" class="{{.Field}}__delete_flag">
     <input type="hidden" value="0" name="{{.Field}}__change_flag" class="{{.Field}}__change_flag">
@@ -459,11 +474,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             <span class="input-group-addon"><i class="fa"></i></span>
         {{end}}
         {{if eq .Value ""}}
-            <input style="width: 140px" type="text" name="{{.Field}}" value="fa-bars"
+            <input style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}" value="fa-bars"
                    class="form-control {{.Field}}"
                    placeholder="{{lang "Input Icon"}}">
         {{else}}
-            <input style="width: 140px" type="text" name="{{.Field}}" value="{{.Value}}"
+            <input style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}" value="{{.Value}}"
                    class="form-control {{.Field}}"
                    placeholder="{{lang "Input Icon"}}">
         {{end}}
@@ -477,18 +492,19 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{if not .NoIcon}}
                 <span class="input-group-addon"><i class="fa fa-laptop fa-fw"></i></span>
             {{end}}         
-            <input {{if .Must}}required="1"{{end}} style="width: 130px" type="text" name="{{.Field}}"
-                   value='{{.Value}}' class="form-control {{.Field}}"
+            <input {{if .Must}}required="1"{{end}} style="width: 130px" type="text" 
+            name="{{.Field}}" id="input-{{.Field}}" 
+            value='{{.Value}}' class="form-control {{.Field}}"
                    placeholder="{{.Placeholder}}">
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/multi_file": `{{define "form_multi_file"}}
-    <input type="file" class="{{.Field}}" name="{{.Field}}" multiple data-initial-caption="{{.Placeholder}}">
+    <input type="file" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" multiple data-initial-caption="{{.Placeholder}}">
     <input type="hidden" value="0" name="{{.Field}}__delete_flag" class="{{.Field}}__delete_flag">
     <input type="hidden" value="0" name="{{.Field}}__change_flag" class="{{.Field}}__change_flag">
     <script>
@@ -508,8 +524,8 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
     {{if .Editable}}
         <div class="input-group">
             <input {{if .Must}}required="1"{{end}} style="width: 100px; text-align: center;" type="text"
-                   name="{{.Field}}"
-                   value="{{.Value}}" class="form-control {{.Field}}"
+                    name="{{.Field}}" id="input-{{.Field}}" 
+                    value="{{.Value}}" class="form-control {{.Field}}"
                    placeholder="{{.Head}}">
         </div>
         <script>
@@ -524,10 +540,10 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             })
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/number_range": `{{define "form_number_range"}}
     {{if .Editable}}
@@ -565,10 +581,10 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             }
         </style>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/password": `{{define "form_password"}}
     {{if .Editable}}
@@ -576,12 +592,12 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             {{if not .NoIcon}}
                 <span class="input-group-addon"><i class="fa fa-eye-slash"></i></span>
             {{end}}
-            <input {{if .Must}}required="1"{{end}} type="password" name="{{.Field}}"
+            <input {{if .Must}}required="1"{{end}} type="password" name="{{.Field}}" id="input-{{.Field}}" 
                    value="{{.Value}}"
                    class="form-control {{.Field}}" placeholder="{{.Placeholder}}">
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">********</div>
         </div>
     {{end}}
@@ -589,7 +605,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
     {{if .Editable}}
         <div class="radio">
         {{range $key, $v := .Options }}
-            <input type="radio" name="{{$.Field}}" value="{{$v.Value}}"
+            <input type="radio" name="{{$.Field}}" id="input-{{$.Field}}" value="{{$v.Value}}"
                    class="minimal {{$.Field}}" {{attr $v.SelectedLabel}}
                    style="position: absolute; opacity: 0;">&nbsp;{{if ne $v.TextHTML ""}}{{$v.TextHTML}}{{else}}{{$v.Text}}{{end}}&nbsp;&nbsp;
         {{end}}
@@ -600,19 +616,19 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
             });
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/rate": `{{define "form_rate"}}
     {{if .Editable}}
         <div class="input-group" style="width: 120px;">
-            <input style="text-align: right;width: 120px; " placeholder="0" type="text" name="{{.Field}}" value="{{.Value}}" class="form-control {{.Field}}" />
+            <input style="text-align: right;width: 120px; " placeholder="0" type="text" name="{{.Field}}" id="input-{{.Field}}" value="{{.Value}}" class="form-control {{.Field}}" />
             <span class="input-group-addon clearfix">%</span>
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
         <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
@@ -620,7 +636,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
 {{end}}`, "components/form/richtext": `{{define "form_rich_text"}}
     <div id="{{.Field}}-editor">
     </div>
-    <input type="hidden" id="input-{{.Field}}" name="{{.Field}}" value='{{.Value}}'
+    <input type="hidden" name="{{.Field}}" id="input-{{.Field}}"  value='{{.Value}}'
            placeholder="{{.Placeholder}}">
     <script type="text/javascript">
         {{$field := (js .Field)}}
@@ -636,11 +652,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{end}}
         window.wangEditor.fullscreen.init('#{{.Field}}-editor');
         $("form .btn.btn-primary").on("click", function(){
-            $("#input-{{.Field}}").val({{$field}}editor.txt.html())
+            $("#{{.Field}}").val({{$field}}editor.txt.html())
         });
     </script>
 {{end}}`, "components/form/select": `{{define "form_select"}}
-    <select class="form-control {{.FieldClass}} select2-hidden-accessible" style="width: 100%;" name="{{.Field}}[]"
+    <select id="select_single-{{.FieldClass}}" class="form-control {{.FieldClass}} select2-hidden-accessible" style="width: 100%;" name="{{.Field}}[]"
             multiple="" data-placeholder="{{.Placeholder}}" tabindex="-1" aria-hidden="true"
             {{if not .Editable}}disabled="disabled"{{end}}>
         {{range $key, $v := .Options }}
@@ -648,7 +664,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{end}}
     </select>
     <script>
-        $("select.{{.FieldClass}}").val("{{.Default}}").select2({{.OptionExt}});
+        if($("#select_single-{{.FieldClass}}").val()=='' && {{.Default}}){
+            $("#select_single-{{.FieldClass}}").val("{{.Default}}").select2({{.OptionExt}});
+        }else{
+            $("#select_single-{{.FieldClass}}").select2({{.OptionExt}});
+        }
     </script>
 {{end}}`, "components/form/selectbox": `{{define "form_selectbox"}}
     <select class="form-control {{.FieldClass}}" style="width: 100%;" name="{{.Field}}[]" multiple="multiple"
@@ -667,7 +687,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         });
     </script>
 {{end}}`, "components/form/singleselect": `{{define "form_select_single"}}
-    <select class="form-control {{.FieldClass}} select2-hidden-accessible" style="width: 100%;" name="{{.Field}}"
+    <select class="form-control {{.FieldClass}} select2-hidden-accessible" style="width: 100%;" name="{{.Field}}" id="select_single-{{.FieldClass}}" 
             data-multiple="false" data-placeholder="{{.Placeholder}}" tabindex="-1" aria-hidden="true"
             {{if not .Editable}}disabled="disabled"{{end}}>
         <option></option>
@@ -676,19 +696,23 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{end}}
     </select>
     <script>
-        $("select.{{.FieldClass}}").val("{{.Default}}").select2({{.OptionExt}});
+        if($("#select_single-{{.FieldClass}}").val()=='' && {{.Default}}){
+            $("#select_single-{{.FieldClass}}").val("{{.Default}}").select2({{.OptionExt}});
+        }else{
+            $("#select_single-{{.FieldClass}}").select2({{.OptionExt}});
+        }
     </script>
 {{end}}`, "components/form/slider": `{{define "form_slider"}}
     {{if .Editable}}
-        <input type="text" class="{{.Field}}" name="{{.Field}}" data-from="" value="{{.Value}}" style="display: none;">
+        <input type="text" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" data-from="" value="{{.Value}}" style="display: none;">
         <script>
             $('.{{.Field}}').ionRangeSlider({{.OptionExt}})
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}`, "components/form/switch": `{{define "form_switch"}}
     <input id="__{{.Field}}" class="{{.Field}} ga_checkbox" {{attr (index .Options 0).SelectedLabel}} type="checkbox"
@@ -697,7 +721,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
     {{if eq (index .Options 0).SelectedLabel ""}}
         {{$index = 1}}
     {{end}}
-    <input type="hidden" class="{{.Field}}" name="{{.Field}}" value="{{(index .Options $index).Value}}">
+    <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value="{{(index .Options $index).Value}}">
     <script>
         $(".{{.Field}}.ga_checkbox").bootstrapSwitch({
             size: "small",
@@ -858,14 +882,14 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                     <span class="input-group-addon">{{.Label}}</span>
                 {{end}}
             {{end}}
-            <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" value='{{.Value}}'
+            <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'
                    class="form-control {{.Field}}" placeholder="{{.Placeholder}}">
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
     {{if eq .Label "free"}}
         <script>
@@ -878,7 +902,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         </script>
     {{end}}
 {{end}}`, "components/form/textarea": `{{define "form_textarea"}}
-    <textarea {{if .Must}}required="1"{{end}} name="{{.Field}}" class="form-control" rows="5"
+    <textarea {{if .Must}}required="1"{{end}} name="{{.Field}}" id="textarea-{{.Field}}" class="form-control" rows="5"
               placeholder="{{.Placeholder}}"
                       {{if not .Editable}}disabled="disabled"{{end}}>{{.Value}}</textarea>
 {{end}}`, "components/form/url": `{{define "form_url"}}
@@ -886,7 +910,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{if not .NoIcon}}
             <span class="input-group-addon"><i class="fa fa-internet-explorer fa-fw"></i></span>
         {{end}}
-        <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" value='{{.Value}}'
+        <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'
                class="form-control {{.Field}}"
                placeholder="{{.Placeholder}}">
     </div>
@@ -925,7 +949,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
     {{.Footer}}
     {{if .Ajax}}
         <script>
-            $("#{{.ID}}").submit(function(e){                
+            $("#{{.ID}}").submit(function(e){
                 var form = $(this);
                 $.ajax({
                     headers: {
@@ -1036,7 +1060,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                                 </div>
                             {{end}}
                             {{if $data.Hide}}
-                                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                                {{if $data.Value}}
+                                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                                {{else}}
+                                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                                {{end}}
                             {{else}}
                                 {{if eq $data.RowFlag 1}}
                                     <div class="form-group">
@@ -1106,7 +1134,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         </div>
                     {{end}}
                     {{if $data.Hide}}
-                        <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                        {{if $data.Value}}
+                            <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                        {{else}}
+                            <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                        {{end}}
                     {{else}}
                         {{if eq $data.RowFlag 1}}
                             <div class="form-group">
@@ -1172,7 +1204,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 </div>
             {{end}}
             {{if $data.Hide}}
-                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{if $data.Value}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{else}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                {{end}}
             {{else}}
                 <div class="form-group" style="float: left;{{if ne $data.Width 0}}width: {{$data.Width}}px;{{$data.Style}}{{end}}">
                     {{if ne $data.Head ""}}
@@ -1201,7 +1237,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 </div>
             {{end}}
             {{if $data.Hide}}
-                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{if $data.Value}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{else}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                {{end}}
             {{else}}
                 {{if eq $data.RowFlag 1}}
                     <div class="form-group">
@@ -1472,7 +1512,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
 
             <script>
                 $("#filter-btn").click(function () {
-                    $('.filter-area').toggle(300);
+                    $('.filter-area').toggle(200);
                 });
             </script>
 
@@ -1503,25 +1543,23 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{renderRowDataHTML "" .Buttons}}
     </div>
     <span>
-		{{if ne .IsHideRowSelector true}}
-			{{if or .DeleteUrl .ExportUrl}}
-				<div class="btn-group">
-					<a class="btn btn-sm btn-default">{{lang "Action"}}</a>
-					<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-					<span class="caret"></span>
-					<span class="sr-only">{{lang "Toggle Dropdown"}}</span>
-					</button>
-					<ul id="menuAction" class="dropdown-menu" role="menu">
-						{{if .DeleteUrl}}
-							<li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
-						{{end}}
-						{{if .ExportUrl}}
-							<li><a href="#" class="grid-batch-1">{{lang "Export"}}</a></li>
-						{{end}}
-					</ul>
-				</div>
-			{{end}}
-		{{end}}
+        {{if or .DeleteUrl .ExportUrl}}
+            <div class="btn-group">
+                <a class="btn btn-sm btn-default">{{lang "Action"}}</a>
+                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+                <span class="sr-only">{{lang "Toggle Dropdown"}}</span>
+                </button>
+                <ul id="menuAction" class="dropdown-menu" role="menu">
+                    {{if .DeleteUrl}}
+                        <li><a href="#" class="grid-batch-0">{{lang "Delete"}}</a></li>
+                    {{end}}
+                    {{if .ExportUrl}}
+                        <li><a href="#" class="grid-batch-1">{{lang "Export"}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        {{end}}
         <a class="btn btn-sm btn-primary grid-refresh" style="margin-left: 10px;">
             <i class="fa fa-refresh"></i> {{lang "Refresh"}}
         </a>
@@ -1541,9 +1579,9 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         $("#export-btn-1").click(function () {
             ExportData("true")
         });
-	 	$('#exportHref').click(function(){
-			setTimeout(function(){$('#exportBtn').click()},100);
-		});
+        $('#exportHref').click(function(){
+            setTimeout(function(){$('#exportBtn').click()},100);
+        });
 
         function ExportData(isAll) {
             let form = $("<form>");
@@ -1576,11 +1614,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                 <tr>
                     {{range $key, $head := .Thead}}
                         {{if eq $head.Width "0px"}}
-                            <th>
+                            <th id="th-{{$head.Field}}">
                         {{else if eq $head.Width ""}}
-                            <th>
+                            <th id="th-{{$head.Field}}">
                         {{else}}
-                            <th style="width: {{$head.Width}}">
+                            <th id="th-{{$head.Field}}" style="width: {{$head.Width}}">
                         {{end}}
                         {{$head.Head}}
                         </th>
@@ -1593,18 +1631,18 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         {{if eq .Type "data-table"}}
             <tr>
                 {{if eq .IsTab false}}
-                    <th style="text-align: center;">
+                    <th id="th-tab-btn" style="text-align: center;">
                         <input type="checkbox" class="grid-select-all" style="position: absolute; opacity: 0;">
                     </th>
                 {{end}}
                 {{range $key, $head := .Thead}}
                     {{if eq $head.Hide false}}
                         {{if eq $head.Width "0px"}}
-                            <th>
+                            <th id="th-{{$head.Field}}">
                         {{else if eq $head.Width ""}}
-                            <th>
+                            <th id="th-{{$head.Field}}">
                         {{else}}
-                            <th style="width: {{$head.Width}}">
+                            <th id="th-{{$head.Field}}" style="width: {{$head.Width}}">
                         {{end}}
                         {{$head.Head}}
                         {{if $head.Sortable}}
@@ -1615,7 +1653,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                     {{end}}
                 {{end}}
                 {{if eq .NoAction false}}
-                    <th style="text-align: center;">{{lang "operation"}}</th>
+                    <th id="th-op-btn" style="text-align: center;">{{lang "operation"}}</th>
                 {{end}}
             </tr>
         {{end}}
@@ -1670,7 +1708,8 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                                            data-pk="{{(index $info $PrimaryKey).Content}}"
                                            data-source='{{$head2.EditOption.Marshal}}'
                                            data-url="{{$UpdateUrl}}"
-                                           data-value="{{(index $info $head2.Field).Value}}"
+                                           data-value_src="{{(index $info $head2.Field).Value}}"
+                                           data-value="{{(index $info $head2.Field).Content}}"
                                            data-name="{{$head2.Field}}"
                                            data-title="Enter {{$head2.Head}}">{{(index $info $head2.Field).Content}}</a>
                                     {{end}}
@@ -1933,7 +1972,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         closeOnConfirm: false,
                         cancelButtonText: {{lang "cancel"}},
                     }).then(function (isDel) {
-                         if(!isDel){return;}
+                        if(!isDel){return;}
                         $.ajax({
                             method: 'post',
                             url: {{.DeleteUrl}} + url_param,
@@ -2288,7 +2327,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                         closeOnConfirm: false,
                         cancelButtonText: {{lang "cancel"}}
                     }).then(function (isDel) {
-                         if(!isDel){return;}
+                        if(!isDel){return;}
                         $.ajax({
                             method: 'post',
                             url: {{.DeleteUrl}} +'?id=' + id,
@@ -2702,6 +2741,7 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         </div>
     </aside>
 {{end}}`, "footer": `{{define "footer"}}
+    {{if ne .FooterInfo ""}}
     <footer class="main-footer">
         <!--
         <div class="pull-right hidden-xs">
@@ -2710,10 +2750,11 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
         <div class="pull-right hidden-xs">
             <b>Theme</b> {{.System.Theme}}&nbsp;&nbsp;
         </div>
-        <strong><Powered by <a href="https://github.com/GoAdminGroup/go-admin">GoAdmin</a>&nbsp;</strong>
+        <strong>Powered by <a href="https://github.com/GoAdminGroup/go-admin">GoAdmin</a>.</strong>
         -->
         {{.FooterInfo}}
     </footer>
+    {{end}}
 {{end}}`, "head": `{{define "head"}}
     <head>
         <meta charset="utf-8">

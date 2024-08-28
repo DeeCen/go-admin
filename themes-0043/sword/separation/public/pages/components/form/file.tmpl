@@ -1,5 +1,5 @@
 {{define "form_file"}}
-    <input type="file" class="{{.Field}}" name="{{.Field}}" data-initial-preview="{{.Value2}}"
+    <input type="file" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" data-initial-preview="{{.Value2}}"
            data-initial-caption="{{.Value}}">
     <input type="hidden" value="0" name="{{.Field}}__delete_flag" class="{{.Field}}__delete_flag">
     <input type="hidden" value="0" name="{{.Field}}__change_flag" class="{{.Field}}__change_flag">

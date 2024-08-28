@@ -18,7 +18,11 @@
                                 </div>
                             {{end}}
                             {{if $data.Hide}}
-                                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                                {{if $data.Value}}
+                                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                                {{else}}
+                                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                                {{end}}
                             {{else}}
                                 {{if eq $data.RowFlag 1}}
                                     <div class="form-group">
@@ -88,7 +92,11 @@
                         </div>
                     {{end}}
                     {{if $data.Hide}}
-                        <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                        {{if $data.Value}}
+                            <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                        {{else}}
+                            <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                        {{end}}
                     {{else}}
                         {{if eq $data.RowFlag 1}}
                             <div class="form-group">
@@ -154,7 +162,11 @@
                 </div>
             {{end}}
             {{if $data.Hide}}
-                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{if $data.Value}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{else}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                {{end}}
             {{else}}
                 <div class="form-group" style="float: left;{{if ne $data.Width 0}}width: {{$data.Width}}px;{{$data.Style}}{{end}}">
                     {{if ne $data.Head ""}}
@@ -183,7 +195,11 @@
                 </div>
             {{end}}
             {{if $data.Hide}}
-                <input type="hidden" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{if $data.Value}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Value}}'>
+                {{else}}
+                    <input type="hidden" id="input-{{$data.Field}}" name="{{$data.Field}}" value='{{$data.Default}}'>
+                {{end}}
             {{else}}
                 {{if eq $data.RowFlag 1}}
                     <div class="form-group">

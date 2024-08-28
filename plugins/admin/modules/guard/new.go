@@ -103,7 +103,7 @@ func (g *Guard) NewForm(ctx *context.Context) {
         return
     }*/
 
-    fromList := isInfoURL(previous)
+    fromList := isListURL(previous)
     param := parameter.GetParamFromURL(previous, panel.GetInfo().DefaultPageSize,
         panel.GetInfo().GetSort(), panel.GetPrimaryKey().Name)
 

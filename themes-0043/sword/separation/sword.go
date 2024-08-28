@@ -1,55 +1,55 @@
 package separation
 
 import (
-    "github.com/GoAdminGroup/go-admin/modules/config"
-    adminTemplate "github.com/GoAdminGroup/go-admin/template"
-    "github.com/GoAdminGroup/go-admin/template/components"
-    "github.com/GoAdminGroup/go-admin/template/types"
-    "github.com/GoAdminGroup/themes/common"
-    "github.com/GoAdminGroup/themes/sword/resource"
+	"github.com/GoAdminGroup/go-admin/modules/config"
+	adminTemplate "github.com/GoAdminGroup/go-admin/template"
+	"github.com/GoAdminGroup/go-admin/template/components"
+	"github.com/GoAdminGroup/go-admin/template/types"
+	"github.com/GoAdminGroup/themes/common"
+	"github.com/GoAdminGroup/themes/sword/resource"
 )
 
 type Theme struct {
-    ThemeName string
-    components.Base
-    *common.BaseTheme
+	ThemeName string
+	components.Base
+	*common.BaseTheme
 }
 
 var Sword = Theme{
-    ThemeName: "sword_sep",
-    Base: components.Base{
-        Attribute: types.Attribute{
-            TemplateList: common.SepTemplateList,
-            Separation:   true,
-        },
-    },
-    BaseTheme: &common.BaseTheme{
-        AssetPaths:   resource.AssetPaths,
-        TemplateList: common.SepTemplateList,
-        Separation:   true,
-    },
+	ThemeName: "sword_sep",
+	Base: components.Base{
+		Attribute: types.Attribute{
+			TemplateList: common.SepTemplateList,
+			Separation:   true,
+		},
+	},
+	BaseTheme: &common.BaseTheme{
+		AssetPaths:   resource.AssetPaths,
+		TemplateList: common.SepTemplateList,
+		Separation:   true,
+	},
 }
 
 func init() {
-    adminTemplate.Add("sword_sep", &Sword)
+	adminTemplate.Add("sword_sep", &Sword)
 }
 
 func Get() *Theme {
-    return &Sword
+	return &Sword
 }
 
 func (t *Theme) Name() string {
-    return t.ThemeName
+	return t.ThemeName
 }
 
 func (t *Theme) GetTmplList() map[string]string {
-    return common.SepTemplateList
+	return common.SepTemplateList
 }
 
 func (t *Theme) GetAsset(path string) ([]byte, error) {
-    return io.ReadFile(config.GetAssetRootPath() + path)
+	return io.ReadFile(config.GetAssetRootPath() + path)
 }
 
 func (t *Theme) GetAssetList() []string {
-    return resource.AssetsList
+	return resource.AssetsList
 }

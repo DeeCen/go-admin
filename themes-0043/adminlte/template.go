@@ -1711,7 +1711,8 @@ var TemplateList = map[string]string{"403": `<div class="missing-content">
                                            data-pk="{{(index $info $PrimaryKey).Content}}"
                                            data-source='{{$head2.EditOption.Marshal}}'
                                            data-url="{{$UpdateUrl}}"
-                                           data-value="{{(index $info $head2.Field).Value}}"
+                                           data-value_src="{{(index $info $head2.Field).Value}}"
+                                           data-value="{{(index $info $head2.Field).Content}}"
                                            data-name="{{$head2.Field}}"
                                            data-title="Enter {{$head2.Head}}">{{(index $info $head2.Field).Content}}</a>
                                     {{end}}

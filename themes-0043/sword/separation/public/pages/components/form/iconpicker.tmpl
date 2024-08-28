@@ -4,11 +4,11 @@
             <span class="input-group-addon"><i class="fa"></i></span>
         {{end}}
         {{if eq .Value ""}}
-            <input style="width: 140px" type="text" name="{{.Field}}" value="fa-bars"
+            <input style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}" value="fa-bars"
                    class="form-control {{.Field}}"
                    placeholder="{{lang "Input Icon"}}">
         {{else}}
-            <input style="width: 140px" type="text" name="{{.Field}}" value="{{.Value}}"
+            <input style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}" value="{{.Value}}"
                    class="form-control {{.Field}}"
                    placeholder="{{lang "Input Icon"}}">
         {{end}}

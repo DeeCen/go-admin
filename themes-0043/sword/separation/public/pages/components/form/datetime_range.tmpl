@@ -16,25 +16,42 @@
         </div>
         <script>
             $(function () {
-                $('input.{{.Field}}_start_key').datetimepicker({{.OptionExt}});
+				function getParam(key){
+					const p = new URLSearchParams(window.location.search);
+					var ret = decodeURIComponent(p.get(key));
+					if (ret=='null'){
+						ret = '';
+					}
+					return ret;
+				}
+				
+				var inputStart = $('#{{.Field}}_start_key');
+				var inputEnd = $('#{{.Field}}_end_key');
+				
+                inputStart.datetimepicker({{.OptionExt}});
                 {{if eq .OptionExt2 ""}}
-                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt}});
+                    inputEnd.datetimepicker({{.OptionExt}});
                 {{else}}
-                    $('input.{{.Field}}_end_key').datetimepicker({{.OptionExt2}});
+                    inputEnd.datetimepicker({{.OptionExt2}});
                 {{end}}
 
-                $('input.{{.Field}}_start_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_end_key').data("DateTimePicker").minDate(e.date);
+                inputStart.on("dp.change", function (e) {
+                    inputEnd.data("DateTimePicker").minDate(e.date);
                 });
-                $('input.{{.Field}}_end_key').on("dp.change", function (e) {
-                    $('input.{{.Field}}_start_key').data("DateTimePicker").maxDate(e.date);
+                inputEnd.on("dp.change", function (e) {
+                    inputStart.data("DateTimePicker").maxDate(e.date);
                 });
+				
+				var d1 = getParam('{{.Field}}_start_key');
+				var d2 = getParam('{{.Field}}_end_key');
+				if(d1!='' && inputStart.val()==''){inputStart.val(d1);}
+				if(d2!='' && inputEnd.val()==''){inputEnd.val(d2);}
             });
         </script>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}

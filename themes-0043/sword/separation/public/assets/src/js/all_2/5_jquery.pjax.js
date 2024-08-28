@@ -241,11 +241,17 @@ function pjax(options) {
   }
 
   options.error = function(xhr, textStatus, errorThrown) {
-    var container = extractContainer("", xhr, options)
+    var container = extractContainer("", xhr, options);
 
-    var allowed = fire('pjax:error', [xhr, textStatus, errorThrown, options])
+    var allowed = fire('pjax:error', [xhr, textStatus, errorThrown, options]);
     if (options.type == 'GET' && textStatus !== 'abort' && allowed) {
-      locationReplace(container.url)
+      locationReplace(container.url);
+    }
+    // fix admin clear form data bug
+    var respTxt = xhr.responseText || '';
+    if (respTxt.indexOf('pjaxError:')!=-1){
+        swal('', respTxt.replace('pjaxError:',''), 'error');
+        history.go(-1);
     }
   }
 
@@ -809,7 +815,7 @@ function cachePush(id, value) {
 // contents.
 //
 // direction - "forward" or "back" String
-// id        - State ID Number
+// id        - State Id Number
 // value     - DOM Element to cache
 //
 // Returns nothing.

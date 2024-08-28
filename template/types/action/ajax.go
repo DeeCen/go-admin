@@ -48,15 +48,11 @@ func Ajax(id string, handler types.Handler) *AjaxAction {
         Url:    URL(id),
         Method: "post",
         Data:   NewAjaxData(),
-        SuccessJS: `if (data.code === 0) {
-                                    swal(data.msg, '', 'success');
-                                } else {
-                                    swal(data.msg, '', 'error');
-                                }`,
+        SuccessJS: `swal('', data.msg,  (data.code===0) ? 'success' : 'error');`,
         ErrorJS: `if (data.responseText !== "") {
-                                    swal(data.responseJSON.msg, '', 'error');                                
+                                    swal('', data.responseJSON.msg, 'error');                                
                                 } else {
-                                    swal('error', '', 'error');
+                                    swal('', '', 'error');
                                 }`,
         Handlers: context.Handlers{handler.Wrap()},
         Event:    EventClick,
@@ -124,7 +120,7 @@ func (ajax *AjaxAction) ChangeHTMLWhenSuccess(identify string, text ...string) *
             ` + selector + `.html(` + data + `);
         }
     } else {
-        swal(data.msg, '', 'error');
+        swal('', data.msg, 'error');
     }`
     return ajax
 }

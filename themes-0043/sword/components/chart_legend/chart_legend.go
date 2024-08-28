@@ -1,29 +1,29 @@
 package chart_legend
 
 import (
-    "html/template"
+	"html/template"
 
-    adminTemplate "github.com/GoAdminGroup/go-admin/template"
+	adminTemplate "github.com/GoAdminGroup/go-admin/template"
 )
 
 type ChartLegend struct {
-    *adminTemplate.BaseComponent
+	*adminTemplate.BaseComponent
 
-    Data []map[string]string
+	Data []map[string]string
 }
 
 func New() ChartLegend {
-    return ChartLegend{
-        BaseComponent: &adminTemplate.BaseComponent{
-            Name:     "chart-legend",
-            HTMLData: List["chart-legend"],
-        },
-    }
+	return ChartLegend{
+		BaseComponent: &adminTemplate.BaseComponent{
+			Name:     "chart-legend",
+			HTMLData: List["chart-legend"],
+		},
+	}
 }
 
 func (c ChartLegend) SetData(value []map[string]string) ChartLegend {
-    c.Data = value
-    return c
+	c.Data = value
+	return c
 }
 
 func (c ChartLegend) GetContent() template.HTML { return c.GetContentWithData(c) }

@@ -1,7 +1,7 @@
 package progress_group
 
 var List = map[string]string{
-    "progress-group": `{{define "progress-group"}}
+	"progress-group": `{{define "progress-group"}}
     <div class="progress-group">
         <span class="progress-text">{{langHtml .Title}}</span>
         <span class="progress-number"><b>{{.Molecular}}</b>/{{.Denominator}}</span>

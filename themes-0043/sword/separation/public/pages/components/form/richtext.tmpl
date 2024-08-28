@@ -1,13 +1,13 @@
 {{define "form_rich_text"}}
     <div id="{{.Field}}-editor">
     </div>
-    <input type="hidden" id="{{.Field}}" name="{{.Field}}" value='{{.Value}}'
+    <input type="hidden" name="{{.Field}}" id="input-{{.Field}}"  value='{{.Value}}'
            placeholder="{{.Placeholder}}">
     <script type="text/javascript">
         {{$field := (js .Field)}}
         {{$field}}editor = new window.wangEditor('#{{.Field}}-editor');
         {{$field}}editor.customConfig.onchange = function (html) {
-            $('#{{.Field}}').val(html)
+            $('#input-{{.Field}}').val(html)
         };
         {{.OptionExt}}
         {{$field}}editor.create();

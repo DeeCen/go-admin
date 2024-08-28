@@ -4,14 +4,15 @@
             {{if not .NoIcon}}
                 <span class="input-group-addon"><i class="fa fa-laptop fa-fw"></i></span>
             {{end}}         
-            <input {{if .Must}}required="1"{{end}} style="width: 130px" type="text" name="{{.Field}}"
-                   value='{{.Value}}' class="form-control {{.Field}}"
+            <input {{if .Must}}required="1"{{end}} style="width: 130px" type="text" 
+            name="{{.Field}}" id="input-{{.Field}}" 
+            value='{{.Value}}' class="form-control {{.Field}}"
                    placeholder="{{.Placeholder}}">
         </div>
     {{else}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}

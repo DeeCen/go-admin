@@ -1,10 +1,10 @@
 {{define "form_datetime"}}
     {{if not .Editable}}
-        <div class="box box-solid box-default no-margin">
+        <div class="box box-solid box-default no-margin" style="cursor:not-allowed;background-color:#eee;">
             <div class="box-body" style="min-height: 40px;">
                 {{.Value}}
             </div>
-            <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+            <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
         </div>
     {{else}}
         <div class="input-group">
@@ -16,7 +16,7 @@
                 {{end}}
             {{end}}            
             <input {{if .Must}}required="1"{{end}} style="width: 170px" type="text"
-                   name="{{.Field}}"
+                   name="{{.Field}}" id="input-{{.Field}}" 
                    value="{{.Value}}"
                    class="form-control {{.Field}}" placeholder="{{.Placeholder}}">
         </div>

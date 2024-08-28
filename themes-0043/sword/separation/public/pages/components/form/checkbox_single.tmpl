@@ -1,12 +1,12 @@
 {{define "form_checkbox_single"}}
     <span class="icheck">
         <label class="checkbox-inline">
-            <input type="checkbox" class="{{.FieldClass}}" {{attr (index .Options 0).SelectedLabel}} value='{{(index .Options 0).Value}}' name="{{.Field}}" style="position: absolute; opacity: 0;">
+            <input type="checkbox" class="{{.FieldClass}}" {{attr (index .Options 0).SelectedLabel}} value='{{(index .Options 0).Value}}' id="input-{{.Field}}" name="{{.Field}}" style="position: absolute; opacity: 0;">
             {{if ne (index .Options 0).Text ""}}
                 &nbsp;{{(index .Options 0).Text}}&nbsp;&nbsp;
             {{end}}
             {{if ne (index .Options 0).SelectedLabel "checked"}}
-                <input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}">
+                <input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}" id="input-hidden-{{.Field}}">
             {{end}}
         </label>
     </span>
@@ -18,7 +18,7 @@
                 next.remove();
             }
         } else {
-            $(this).parent().parent().append('<input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}">')
+            $(this).parent().parent().append('<input type="hidden" value="{{(index .Options 1).Value}}" name="{{.Field}}" id="input-hidden-{{.Field}}">')
         }
     });
 </script>

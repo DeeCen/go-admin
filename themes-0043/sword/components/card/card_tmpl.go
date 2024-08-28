@@ -1,7 +1,7 @@
 package card
 
 var List = map[string]string{
-    "card": `{{define "card"}}
+	"card": `{{define "card"}}
     <div class="card" id="{{.ID}}">
         <div class="card-body" id="{{.BodyID}}">
             <div class="card-index">

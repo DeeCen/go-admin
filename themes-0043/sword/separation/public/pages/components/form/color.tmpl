@@ -4,7 +4,7 @@
             {{if not .NoIcon}}
                 <span class="input-group-addon"><i style="background-color: rgb(0, 0, 0);"></i></span>
             {{end}}
-            <input {{if .Must}}required="1"{{end}} style="width: 140px" type="text" name="{{.Field}}"
+            <input {{if .Must}}required="1"{{end}} style="width: 140px" type="text" name="{{.Field}}" id="input-{{.Field}}"
                    value="" class="form-control {{.Field}}" placeholder="{{.Value}}">
         </div>
         <script>
@@ -14,6 +14,6 @@
         <div class="box box-solid box-default no-margin">
             <div class="box-body">{{.Value}}</div>
         </div>
-        <input type="hidden" class="{{.Field}}" name="{{.Field}}" value='{{.Value}}'>
+        <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'>
     {{end}}
 {{end}}

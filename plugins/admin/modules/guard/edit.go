@@ -121,13 +121,13 @@ func (g *Guard) EditForm(ctx *context.Context) {
 
     var (
         previous = ctx.FormValue(form.PreviousKey)
-        fromList = isInfoURL(previous)
+        fromList = isListURL(previous)
         param    = parameter.GetParamFromURL(previous, panel.GetInfo().DefaultPageSize,
             panel.GetInfo().GetSort(), panel.GetPrimaryKey().Name)
     )
 
     if fromList {
-        previous = config.Url("/info/" + prefix + param.GetRouteParamStr())
+        previous = config.Url("/list/" + prefix + param.GetRouteParamStr())
     }
 
     var (
@@ -165,8 +165,8 @@ func (g *Guard) EditForm(ctx *context.Context) {
     ctx.Next()
 }
 
-func isInfoURL(s string) bool {
-    reg, _ := regexp.Compile("(.*?)info/(.*?)$")
+func isListURL(s string) bool {
+    reg, _ := regexp.Compile("(.*?)/list/(.*?)$")
     sub := reg.FindStringSubmatch(s)
     return len(sub) > 2 && !strings.Contains(sub[2], "/")
 }

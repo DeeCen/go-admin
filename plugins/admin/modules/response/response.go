@@ -77,7 +77,7 @@ func Alert(ctx *context.Context, desc, title, msg string, conn db.Connection, bt
 func Error(ctx *context.Context, msg string, data ...map[string]interface{}) {
     res := map[string]interface{}{
         "code": http.StatusInternalServerError,
-        "msg":  language.Get(msg),
+        "msg":  msg,
     }
     if len(data) > 0 {
         res["data"] = data[0]

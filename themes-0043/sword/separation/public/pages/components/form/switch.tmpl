@@ -5,7 +5,7 @@
     {{if eq (index .Options 0).SelectedLabel ""}}
         {{$index = 1}}
     {{end}}
-    <input type="hidden" class="{{.Field}}" name="{{.Field}}" value="{{(index .Options $index).Value}}">
+    <input type="hidden" class="{{.Field}}" name="{{.Field}}" id="input-{{.Field}}" value="{{(index .Options $index).Value}}">
     <script>
         $(".{{.Field}}.ga_checkbox").bootstrapSwitch({
             size: "small",

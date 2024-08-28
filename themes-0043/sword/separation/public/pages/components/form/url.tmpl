@@ -3,7 +3,7 @@
         {{if not .NoIcon}}
             <span class="input-group-addon"><i class="fa fa-internet-explorer fa-fw"></i></span>
         {{end}}
-        <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" value='{{.Value}}'
+        <input {{if .Must}}required="1"{{end}} type="text" name="{{.Field}}" id="input-{{.Field}}" value='{{.Value}}'
                class="form-control {{.Field}}"
                placeholder="{{.Placeholder}}">
     </div>
