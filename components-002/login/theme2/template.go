@@ -123,6 +123,7 @@ var List = map[string]string{"login": `{{define "login"}}
                     data: {},
                     success: function (data) {
                         $("#captcha-id").val(data.id);
+                        $("#captcha").val('');
                         $("#captcha-img").attr('src',data.img);
                     },
                     error: function (data) {
