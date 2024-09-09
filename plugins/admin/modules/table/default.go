@@ -381,7 +381,7 @@ func (tb *DefaultTable) getTempModelData(res map[string]interface{}, params para
 func (tb *DefaultTable) getAllDataFromDatabase(params parameter.Parameters) (PanelInfo, error) {
     var (
         connection     = tb.db()
-        queryStatement = "select %s from %s %s %s %s order by " + modules.Delimiter(connection.GetDelimiter(), connection.GetDelimiter2(), "%s") + " %s LIMIT 1000" // 限制最大导出1000条数据
+        queryStatement = "select %s from %s %s %s %s order by " + modules.Delimiter(connection.GetDelimiter(), connection.GetDelimiter2(), "%s") + " %s LIMIT 20000" // 限制最大导出20000条数据
     )
 
     columns, _ := tb.getColumns(tb.Info.Table)
