@@ -424,7 +424,7 @@ func (tb *DefaultTable) getAllDataFromDatabase(params parameter.Parameters) (Pan
 
     queryCmd := fmt.Sprintf(queryStatement, fields, tb.Info.Table, joins, wheres, groupBy, params.SortField, params.SortType)
 
-    logger.LogSQL(queryCmd, []interface{}{})
+    logger.LogSQL(queryCmd, whereArgs)
 
     res, err := connection.QueryWithConnection(tb.connection, queryCmd, whereArgs...)
 

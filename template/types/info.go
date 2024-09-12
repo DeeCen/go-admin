@@ -435,7 +435,8 @@ func (f FieldList) GetFieldFilterProcessValue(key, value, keyIndex string) strin
         }
     }
 
-    return value
+    // 20240924 过滤两侧的空白
+    return strings.TrimSpace(value)
 }
 
 func (f FieldList) GetFieldJoinTable(key string) string {
