@@ -435,7 +435,7 @@ func (t UserModel) Update(username, password, name, avatar string, isUpdateAvata
         "updateAt": uint32(time.Now().Unix()),
     }
 
-    if avatar == "" || isUpdateAvatar {
+    if avatar != "" || isUpdateAvatar {
         fieldValues["avatar"] = avatar
     }
 
