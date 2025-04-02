@@ -697,50 +697,28 @@ type WhereRaw struct {
     Args []interface{}
 }
 
-func (wh WhereRaw) check() int {
-    index := 0
-    for i := 0; i < len(wh.Raw); i++ {
-        if wh.Raw[i] == ' ' {
-            continue
-        }
-        if wh.Raw[i] == 'a' {
-            if len(wh.Raw) < i+3 {
-                break
-            } else if wh.Raw[i+1] == 'n' && wh.Raw[i+2] == 'd' {
-                index = i + 3
-            }
-        } else if wh.Raw[i] == 'o' {
-            if len(wh.Raw) < i+2 {
-                break
-            } else if wh.Raw[i+1] == 'r' {
-                index = i + 2
-            }
-        } else {
-            break
-        }
-    }
-    return index
-}
-
 func (wh WhereRaw) Statement(wheres string, whereArgs []interface{}) (string, []interface{}) {
-
     if wh.Raw == "" {
         return wheres, whereArgs
     }
 
+    whereRaw := strings.TrimSpace(wh.Raw)
+    lowerRaw := strings.ToLower(whereRaw)
+    rawHasAndOr := strings.HasPrefix(lowerRaw, `and `) || strings.HasPrefix(lowerRaw, `or `)
+
     if wheres != "" {
-        if wh.check() != 0 {
+        if rawHasAndOr {
             wheres += wh.Raw + " "
         } else {
-            wheres = strings.TrimRight(wheres, ` and `) + " and " + wh.Raw + " "
+            wheres = strings.TrimSuffix(wheres, ` and `) + " and " + wh.Raw + " "
         }
-
-        whereArgs = append(whereArgs, wh.Args...)
     } else {
-        wheres += wh.Raw[wh.check():] + " "
-        whereArgs = append(whereArgs, wh.Args...)
+        wheres = strings.TrimPrefix(whereRaw, `and `)
+        wheres = strings.TrimPrefix(wheres, `AND `)
+        wheres = strings.TrimPrefix(wheres, `or `)
+        wheres = strings.TrimPrefix(wheres, `OR `)
     }
-
+    whereArgs = append(whereArgs, wh.Args...)
     return wheres, whereArgs
 }
 
